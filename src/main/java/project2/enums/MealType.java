@@ -1,7 +1,7 @@
 package project2.enums;
 
 public enum MealType {
-	BREKAFAST,
+	BREAKFAST,
 	LUNCH,
 	DINNER,
 	SNACK,
