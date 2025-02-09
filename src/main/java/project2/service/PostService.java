@@ -78,4 +78,51 @@ public class PostService {
                 .imageUrl(savedPost.getImageUrl())
                 .build();
 	}
+
+	public PostResponse updatePost(Long pid, PostCreateRequest request, MultipartFile image) {
+		Posts post = postRepository.findById(pid)
+				.orElseThrow(() -> new RuntimeException("Post not found with id: " + pid));
+		
+		String imageUrl = post.getImageUrl();
+		
+		// 새 이미지가 업로드된 경우 기존 이미지 삭제 후 업로드
+		if (image != null && !image.isEmpty()) {
+			if (imageUrl != null) {
+				String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+				amazonS3.deleteObject(bucketName, fileName);
+			}
+			
+			String fileName = "posts/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
+			ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(image.getSize());
+            
+            try {
+				amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
+						.withCannedAcl(CannedAccessControlList.PublicRead));
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to upload image to S3", e);
+			}
+            imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
+		}
+		
+		post.updatePost(
+				request.getContent(), 
+				request.getMealDate(), 
+				request.getMealType(), 
+				request.getCalories(), 
+				imageUrl
+		);
+		
+		Posts savedPost = postRepository.save(post);
+		
+		return PostResponse.builder()
+                .pid(savedPost.getPid())
+                .uid(savedPost.getUser().getUid())
+                .content(savedPost.getContent())
+                .mealDate(savedPost.getMealDate())
+                .mealType(savedPost.getMealType())
+                .calories(savedPost.getCalories())
+                .imageUrl(savedPost.getImageUrl())
+                .build();
+	}
 }
