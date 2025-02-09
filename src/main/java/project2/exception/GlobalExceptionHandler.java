@@ -22,4 +22,16 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+	
+	@ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<ErrorResponse> handleImageUploadException(ImageUploadException ex, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            "Image Upload Error",
+            request.getRequestURI(),
+            LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }
