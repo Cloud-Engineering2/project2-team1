@@ -15,7 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public Users save(UserRegistrationDto registrationDto) { // 회원 정보 저장
+    public Users registerUserAccount(UserRegistrationDto registrationDto) { // 회원 정보 저장
         Users user = new Users();
         user.setUsername(registrationDto.getUsername());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));

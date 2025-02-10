@@ -24,7 +24,7 @@ public class UserController {
 
     @PostMapping("/register")
     public String registerUserAccount(@ModelAttribute("user") UserRegistrationDto registrationDto) { // 회원 가입 완료
-        userService.save(registrationDto);
+        userService.registerUserAccount(registrationDto);
         return "redirect:/register?success";
     }
     
