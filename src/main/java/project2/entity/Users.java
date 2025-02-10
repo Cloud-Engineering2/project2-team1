@@ -35,6 +35,7 @@ public class Users extends BaseTimeEntity {
     
     public Users updateProfile(String username, String bio, String profileImageUrl) {
         return new Users(
+                this.uid,
                 username != null ? username : this.username,
                 this.password,
                 this.email,
