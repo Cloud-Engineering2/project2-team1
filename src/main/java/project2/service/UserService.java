@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import project2.dto.UserRegistrationDto;
 import project2.entity.Users;
+import project2.exception.UserNotFoundException;
 import project2.repository.UserRepository;
 
 @Service
@@ -22,6 +23,11 @@ public class UserService {
         user.setEmail(registrationDto.getEmail());
         // 프로필 이미지 url 정보 저장용 코드 작성 필요
         return userRepository.save(user);
+    }
+    
+    public Users getUserById(Long uid) {
+        return userRepository.findById(uid)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
     }
 
 
