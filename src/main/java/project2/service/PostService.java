@@ -1,6 +1,7 @@
 package project2.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +28,31 @@ import project2.repository.PostRepository;
 public class PostService {
 	private final PostRepository postRepository;
 	private final AmazonS3 amazonS3;
-	
+
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucketName;
+	
+	// 1️ 전체 게시물 조회
+    public List<Posts> getAllPosts() {
+        return postRepository.findAll();
+    }
+    
+    // 2️ 특정 사용자 게시물 조회
+    public List<Posts> getPostsByUser(Long uid) {
+        List<Posts> posts = postRepository.findByUserUid(uid);
+        
+        if (posts.isEmpty()) { // 만약 게시물이 없다면 예외 발생
+            throw new PostNotFoundException("No posts found for user id " + uid);
+        }
+        
+        return posts;
+    }
+    
+    // 3️ 특정 게시물 상세 조회
+    public Posts getPostById(Long pid) {
+        return postRepository.findById(pid)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid)); // 예외 발생
+    }
 
 	public PostResponse createPost(PostCreateRequest request, MultipartFile image) {
 		String imageUrl = null;

@@ -1,8 +1,11 @@
 package project2.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import project2.dto.PostCreateRequest;
 import project2.dto.PostResponse;
+import project2.entity.Posts;
 import project2.service.PostService;
 
 @RestController
@@ -22,6 +26,27 @@ import project2.service.PostService;
 public class PostController {
 	private final PostService postService;
 	
+	// 전체 게시물 조회 (GET /api/posts)
+    @GetMapping
+    public ResponseEntity<List<Posts>> getAllPosts() {
+        List<Posts> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
+    }
+
+    // 특정 사용자의 게시물 조회 (GET /api/posts/user/{uid})
+    @GetMapping("/users/{uid}")
+    public ResponseEntity<List<Posts>> getPostsByUser(@PathVariable("uid") Long uid) {
+        List<Posts> posts = postService.getPostsByUser(uid);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 특정 게시물 상세 조회 (GET /api/posts/{pid})
+    @GetMapping("/{pid}")
+    public ResponseEntity<Posts> getPostById(@PathVariable("pid") Long pid) {
+        Posts post = postService.getPostById(pid); // 예외 발생 가능
+        return ResponseEntity.ok(post);
+    }
+    
 	@PostMapping(consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> createPost(
 			@RequestPart("post") PostCreateRequest postRequest,
