@@ -1,56 +1,105 @@
 package project2.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import project2.config.PrincipalDetails;
+import project2.dto.CommentRequest;
+import project2.dto.CommentResponse;
 import project2.entity.Comments;
 import project2.entity.Posts;
 import project2.entity.Users;
+import project2.exception.CommentNotBelongToPostException;
+import project2.exception.CommentNotFoundException;
+import project2.exception.PostNotFoundException;
+import project2.exception.UnauthorizedException;
 import project2.repository.CommentRepository;
 import project2.repository.PostRepository;
-import project2.repository.UserRepository;
-
-import java.util.Optional;
-import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
 
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    public List<Comments> getCommentsByPostId(Long postId) {
-        return commentRepository.findByPostPid(postId);
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentsByPostId(Long pid) {
+    	postRepository.findById(pid)
+    			.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+    	
+    	List<Comments> comments = commentRepository.findByPostPid(pid);
+    	return comments.stream()
+    			.map(comment -> CommentResponse.builder()
+    					.cid(comment.getCid())
+    					.pid(comment.getPost().getPid())
+    					.uid(comment.getUser().getUid())
+    					.content(comment.getContent())
+    					.build()
+    				)
+    			.collect(Collectors.toList());
     }
 
-    public Comments addComment(Long postId, Long userId, String content) {
-        Optional<Posts> postOptional = postRepository.findById(postId);
-        if (!postOptional.isPresent()) {
-            throw new IllegalArgumentException("The post does not exist");
+    @Transactional
+    public CommentResponse createComment(Long pid, CommentRequest request) {
+    	Posts post = postRepository.findById(pid)
+    			.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+    	
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users user = userDetails.getUser();
+    	
+    	Comments comment = new Comments(
+    			null,
+    			post,
+    			user,
+    			request.getContent()
+    	);
+    	
+    	Comments savedComment = commentRepository.save(comment);
+    	return CommentResponse.builder()
+    			.cid(savedComment.getCid())
+    			.pid(savedComment.getPost().getPid())
+    			.uid(savedComment.getUser().getUid())
+    			.content(savedComment.getContent())
+    			.build();
+    }
+
+    @Transactional
+    public CommentResponse updateComment(Long pid, Long cid, CommentRequest request) {
+        Comments comment = commentRepository.findById(cid)
+        		.orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + cid));
+        
+        if (!comment.getPost().getPid().equals(pid)) {
+        	throw new CommentNotBelongToPostException("Comment Not Belong To The Post");
         }
-
-        Posts post = postOptional.get();
-        Users user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("The user does not exist"));
-
-        Comments comment = new Comments();
-        comment.setPost(post);
-        comment.setUser(user);
-        comment.setComment(content);
-        return commentRepository.save(comment);
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users currentUser = userDetails.getUser();
+    	
+    	if (!comment.getUser().getUid().equals(currentUser.getUid())) {
+    		throw new UnauthorizedException("No permission to edit the comment");
+    	}
+    	
+    	comment.updateComment(request.getContent());
+    	
+    	Comments updatedComment = commentRepository.save(comment);
+    	return CommentResponse.builder()
+    			.cid(updatedComment.getCid())
+    			.pid(updatedComment.getPost().getPid())
+    			.uid(updatedComment.getUser().getUid())
+    			.content(updatedComment.getContent())
+    			.build();
     }
-
-    public Comments updateComment(Long commentId, String content) {
-        Comments comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("Comment not found"));
-        comment.setComment(content);
-        return commentRepository.save(comment);
-    }
-
-    public void deleteComment(Long commentId) {
-        commentRepository.deleteById(commentId);
-    }
+//
+//    public void deleteComment(Long commentId) {
+//        commentRepository.deleteById(commentId);
+//    }
 }
