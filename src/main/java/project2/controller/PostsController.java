@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project2.entity.Posts;
+import project2.exception.PostNotFoundException;
 import project2.service.PostsService;
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +32,13 @@ public class PostsController {
     // 특정 게시물 상세 조회 (GET /api/posts/{pid})
     @GetMapping("/{pid}")
     public ResponseEntity<Posts> getPostById(@PathVariable("pid") Long pid) {
-        Optional<Posts> post = postsService.getPostById(pid);
-        return post.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+        Posts post = postsService.getPostById(pid); // 예외 발생 가능
+        return ResponseEntity.ok(post);
+    }
+
+    // 예외 발생 시 404 응답 반환
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<String> handlePostNotFound(PostNotFoundException ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
     }
 }
