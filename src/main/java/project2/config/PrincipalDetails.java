@@ -6,9 +6,11 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import project2.entity.Users;
 
+@Getter
 @RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
     private final Users users;
