@@ -1,11 +1,18 @@
 package project2.exception;
 
-public class PostNotFoundException extends RuntimeException {
-    public PostNotFoundException(Long pid) {
-        super("Post with id " + pid + " not found.");
-    }
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public PostNotFoundException(String message) { // 기존 생성자 수정
-        super(message); // 부모 클래스 RuntimeException에 메시지를 전달
-    }
+import lombok.Getter;
+
+@Getter
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+public class PostNotFoundException extends RuntimeException {
+	public PostNotFoundException(String message) {
+		super(message);
+	}
+	
+	public PostNotFoundException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }
