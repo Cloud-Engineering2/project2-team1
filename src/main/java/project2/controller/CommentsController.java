@@ -1,32 +1,3 @@
-//package project2.controller;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.web.bind.annotation.*;
-//import project2.entity.Comments;
-//import project2.service.CommentService;
-//
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("/api/comments")
-//public class CommentController {
-//    
-//	@Autowired
-//    private CommentService commentService;
-//
-//    @GetMapping("/post/{postId}")
-//    public List<Comments> getCommentsByPostId(@PathVariable Long postId) {
-//        return commentService.getCommentsByPostId(postId);
-//    }
-//
-//    @PostMapping("/")
-//    public Comments addComment(@RequestParam Long postId, @RequestParam Long userId, @RequestParam String content) {
-//        return commentService.addComment(postId, userId, content);
-//    }
-//}
-
-//24.02.08 경민수정ver
-
 package project2.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +39,3 @@ public class CommentsController {
     }
 }
 
-
-//24.02.09 경민수정ver
