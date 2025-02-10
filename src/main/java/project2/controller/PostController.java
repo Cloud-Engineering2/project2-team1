@@ -2,6 +2,7 @@ package project2.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,5 +37,11 @@ public class PostController {
 			@RequestPart(value = "image", required = false) MultipartFile image) {
 		PostResponse updatedPost = postService.updatePost(pid, postRequest, image);
 		return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+	}
+	
+	@DeleteMapping(value = "/{pid}")
+	public ResponseEntity<Void> deletePost(@PathVariable Long pid) {
+		postService.deletePost(pid);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

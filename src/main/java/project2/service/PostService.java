@@ -93,7 +93,7 @@ public class PostService {
 		// 새 이미지가 업로드된 경우 기존 이미지 삭제 후 업로드
 		if (image != null && !image.isEmpty()) {
 			if (imageUrl != null) {
-				String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+				String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
 				amazonS3.deleteObject(bucketName, fileName);
 			}
 			
@@ -131,5 +131,17 @@ public class PostService {
                 .calories(savedPost.getCalories())
                 .imageUrl(savedPost.getImageUrl())
                 .build();
+	}
+
+	public void deletePost(Long pid) {
+		Posts post = postRepository.findById(pid)
+				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+		
+		String imageUrl = post.getImageUrl();
+		if (imageUrl != null) {
+			String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
+			amazonS3.deleteObject(bucketName, fileName);
+		}
+		postRepository.delete(post);
 	}
 }
