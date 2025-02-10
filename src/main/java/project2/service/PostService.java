@@ -1,6 +1,8 @@
 package project2.service;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -20,16 +22,38 @@ import project2.entity.Posts;
 import project2.entity.Users;
 import project2.exception.ImageUploadException;
 import project2.exception.PostNotFoundException;
+import project2.exception.UserNotFoundException;
 import project2.repository.PostRepository;
+import project2.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
 	private final AmazonS3 amazonS3;
-	
+	private final UserRepository userRepository;
+
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucketName;
+	
+	// 1️ 전체 게시물 조회
+    public List<Posts> getAllPosts() {
+        return postRepository.findAll();
+    }
+    
+    // 2️ 특정 사용자 게시물 조회
+    public List<Posts> getPostsByUser(Long uid) {
+    	Users user = userRepository.findById(uid)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
+    	List<Posts> posts = postRepository.findByUserUid(uid);
+    	return posts;
+    }
+    
+    // 3️ 특정 게시물 상세 조회
+    public Posts getPostById(Long pid) {
+        return postRepository.findById(pid)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid)); // 예외 발생
+    }
 
 	public PostResponse createPost(PostCreateRequest request, MultipartFile image) {
 		String imageUrl = null;
