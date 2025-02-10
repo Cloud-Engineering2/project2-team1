@@ -98,8 +98,24 @@ public class CommentService {
     			.content(updatedComment.getContent())
     			.build();
     }
-//
-//    public void deleteComment(Long commentId) {
-//        commentRepository.deleteById(commentId);
-//    }
+
+    @Transactional
+    public void deleteComment(Long pid, Long cid) {
+        Comments comment = commentRepository.findById(cid)
+        		.orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + cid));
+        
+        if (!comment.getPost().getPid().equals(pid)) {
+        	throw new CommentNotBelongToPostException("Comment Not Belong To The Post");
+        }
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users currentUser = userDetails.getUser();
+    	
+    	if (!comment.getUser().getUid().equals(currentUser.getUid())) {
+    		throw new UnauthorizedException("No permission to edit the comment");
+    	}
+    	
+    	commentRepository.delete(comment);
+    }
 }

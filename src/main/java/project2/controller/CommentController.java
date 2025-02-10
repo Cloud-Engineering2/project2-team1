@@ -1,9 +1,12 @@
 package project2.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,10 +49,15 @@ public class CommentController {
         CommentResponse updatedComment = commentService.updateComment(pid, cid, request);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
-//
-//    @DeleteMapping("/comments/{cid}")
-//    public ResponseEntity<Void> deleteComment(@PathVariable Long cid) {
-//        commentService.deleteComment(cid);
-//        return ResponseEntity.noContent().build();
-//    }
+
+    @DeleteMapping("/comments/{cid}")
+    public ResponseEntity<?> deleteComment(
+    		@PathVariable Long pid,
+    		@PathVariable Long cid) {
+        commentService.deleteComment(pid, cid);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Successfully delete comment.");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
