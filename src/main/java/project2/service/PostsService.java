@@ -4,7 +4,8 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import project2.entity.Posts;
 import project2.exception.PostNotFoundException;
-import project2.Repository.PostsRepository;
+import project2.repository.PostsRepository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,6 @@ public class PostsService {
     // 3️ 특정 게시물 상세 조회
     public Posts getPostById(Long pid) {
         return postsRepository.findById(pid)
-                .orElseThrow(() -> new PostNotFoundException(pid)); // 예외 발생
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid)); // 예외 발생
     }
 }
