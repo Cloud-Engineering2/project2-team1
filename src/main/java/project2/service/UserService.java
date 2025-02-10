@@ -19,6 +19,7 @@ import project2.dto.UserRegistrationDto;
 import project2.entity.Users;
 import project2.exception.ImageUploadException;
 import project2.exception.UserNotFoundException;
+import project2.exception.UserRegistrationException;
 import project2.repository.UserRepository;
 
 @Service
@@ -35,6 +36,17 @@ public class UserService {
     public Users registerUserAccount(UserRegistrationDto registrationDto, MultipartFile image) { // 회원 정보 저장
         Users user = new Users();
         String imageUrl = null;
+
+        try { // 중복 사용자/메일 주소 확인
+            if (userRepository.existsByUsername(registrationDto.getUsername())) {
+                throw new UserRegistrationException("Username " + registrationDto.getUsername() + " is already taken!");
+            }
+            if (userRepository.existsByEmail(registrationDto.getEmail())) {
+                throw new UserRegistrationException("Email " + registrationDto.getEmail() + " is already in use!");
+            }
+        } catch (UserRegistrationException e) {
+            throw new UserRegistrationException(e.getMessage());
+        }
 
         // 이미지 파일이 존재하면 S3에 업로드
         if (image != null && !image.isEmpty()) {

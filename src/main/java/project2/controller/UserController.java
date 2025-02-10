@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import project2.dto.UserRegistrationDto;
 import project2.entity.Users;
 import project2.service.UserService;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,8 +21,8 @@ public class UserController {
     
     private final UserService userService;
 
-    @PostMapping("/api/register") // 회원 가입 API
-    public ResponseEntity<String> apiRegisterUserAccount(@RequestBody UserRegistrationDto registrationDto,
+    @PostMapping(value = "/api/register", consumes = {"multipart/form-data"} ) // 회원 가입 API 
+    public ResponseEntity<String> apiRegisterUserAccount(@RequestPart("user") UserRegistrationDto registrationDto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         userService.registerUserAccount(registrationDto, profileImage);
         return new ResponseEntity<>("회원 가입이 완료되었습니다.", HttpStatus.CREATED);
