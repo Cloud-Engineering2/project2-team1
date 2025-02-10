@@ -21,27 +21,27 @@ import project2.entity.Posts;
 import project2.service.PostService;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PostController {
 	private final PostService postService;
 	
 	// 전체 게시물 조회 (GET /api/posts)
-    @GetMapping
+    @GetMapping("/posts")
     public ResponseEntity<List<Posts>> getAllPosts() {
         List<Posts> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
 
-    // 특정 사용자의 게시물 조회 (GET /api/posts/user/{uid})
-    @GetMapping("/users/{uid}")
+    // 특정 사용자의 게시물 조회 (GET /api/posts/users/{uid})
+    @GetMapping("/posts/users/{uid}")
     public ResponseEntity<List<Posts>> getPostsByUser(@PathVariable("uid") Long uid) {
         List<Posts> posts = postService.getPostsByUser(uid);
         return ResponseEntity.ok(posts);
     }
 
     // 특정 게시물 상세 조회 (GET /api/posts/{pid})
-    @GetMapping("/{pid}")
+    @GetMapping("/posts/{pid}")
     public ResponseEntity<Posts> getPostById(@PathVariable("pid") Long pid) {
         Posts post = postService.getPostById(pid); // 예외 발생 가능
         return ResponseEntity.ok(post);

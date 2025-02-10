@@ -41,10 +41,6 @@ public class PostService {
     public List<Posts> getPostsByUser(Long uid) {
         List<Posts> posts = postRepository.findByUserUid(uid);
         
-        if (posts.isEmpty()) { // 만약 게시물이 없다면 예외 발생
-            throw new PostNotFoundException("No posts found for user id " + uid);
-        }
-        
         return posts;
     }
     
