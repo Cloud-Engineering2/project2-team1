@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -17,6 +18,8 @@ import project2.dto.PostCreateRequest;
 import project2.dto.PostResponse;
 import project2.entity.Posts;
 import project2.entity.Users;
+import project2.exception.ImageUploadException;
+import project2.exception.PostNotFoundException;
 import project2.repository.PostRepository;
 
 @Service
@@ -41,7 +44,9 @@ public class PostService {
 				amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
 						.withCannedAcl(CannedAccessControlList.PublicRead));
 			} catch (IOException e) {
-				throw new RuntimeException("Failed to upload image to S3", e);
+			    throw new ImageUploadException("Failed to upload new image to S3", e);
+			} catch (AmazonClientException e) {
+			    throw new ImageUploadException("Error communicating with S3", e);
 			}
 			imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
 		}
@@ -81,14 +86,14 @@ public class PostService {
 
 	public PostResponse updatePost(Long pid, PostCreateRequest request, MultipartFile image) {
 		Posts post = postRepository.findById(pid)
-				.orElseThrow(() -> new RuntimeException("Post not found with id: " + pid));
+				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
 		
 		String imageUrl = post.getImageUrl();
 		
 		// 새 이미지가 업로드된 경우 기존 이미지 삭제 후 업로드
 		if (image != null && !image.isEmpty()) {
 			if (imageUrl != null) {
-				String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+				String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
 				amazonS3.deleteObject(bucketName, fileName);
 			}
 			
@@ -100,7 +105,9 @@ public class PostService {
 				amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
 						.withCannedAcl(CannedAccessControlList.PublicRead));
 			} catch (IOException e) {
-				throw new RuntimeException("Failed to upload image to S3", e);
+			    throw new ImageUploadException("Failed to upload new image to S3", e);
+			} catch (AmazonClientException e) {
+			    throw new ImageUploadException("Error communicating with S3", e);
 			}
             imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
 		}
@@ -124,5 +131,17 @@ public class PostService {
                 .calories(savedPost.getCalories())
                 .imageUrl(savedPost.getImageUrl())
                 .build();
+	}
+
+	public void deletePost(Long pid) {
+		Posts post = postRepository.findById(pid)
+				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+		
+		String imageUrl = post.getImageUrl();
+		if (imageUrl != null) {
+			String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
+			amazonS3.deleteObject(bucketName, fileName);
+		}
+		postRepository.delete(post);
 	}
 }
