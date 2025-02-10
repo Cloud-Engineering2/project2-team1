@@ -1,7 +1,6 @@
 package project2.service;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,31 +35,32 @@ public class PostService {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucketName;
 	
-	// 1️ 전체 게시물 조회
+	// 전체 게시물 조회
     public List<Posts> getAllPosts() {
         return postRepository.findAll();
     }
     
-    // 2️ 특정 사용자 게시물 조회
+    // 특정 사용자 게시물 조회
     public List<Posts> getPostsByUser(Long uid) {
-    	Users user = userRepository.findById(uid)
+    	userRepository.findById(uid)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
     	List<Posts> posts = postRepository.findByUserUid(uid);
     	return posts;
     }
     
-    // 3️ 특정 게시물 상세 조회
+    //️ 특정 게시물 상세 조회
     public Posts getPostById(Long pid) {
         return postRepository.findById(pid)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid)); // 예외 발생
     }
 
+    // 게시물 생성
 	public PostResponse createPost(PostCreateRequest request, MultipartFile image) {
 		String imageUrl = null;
 		
 		// 이미지 파일이 존재하면 S3에 업로드
 		if (image != null && !image.isEmpty()) {
-			// posts-UUID-원본파일명 형식으로 파일 저장 
+			// posts/UUID-원본파일명 형식으로 파일 저장 
 			String fileName = "posts/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
 			ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(image.getSize());
@@ -108,6 +108,7 @@ public class PostService {
                 .build();
 	}
 
+	// 게시물 수정
 	public PostResponse updatePost(Long pid, PostCreateRequest request, MultipartFile image) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
@@ -157,6 +158,7 @@ public class PostService {
                 .build();
 	}
 
+	// 게시물 삭제
 	public void deletePost(Long pid) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));

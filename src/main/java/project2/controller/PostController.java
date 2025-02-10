@@ -47,7 +47,8 @@ public class PostController {
         return ResponseEntity.ok(post);
     }
     
-	@PostMapping(consumes = {"multipart/form-data"})
+    // 게시물 생성
+	@PostMapping(value = "/posts", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> createPost(
 			@RequestPart("post") PostCreateRequest postRequest,
 			@RequestPart(value = "image", required = false) MultipartFile image) {
@@ -55,7 +56,8 @@ public class PostController {
 		return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
 	}
 	
-	@PutMapping(value = "/{pid}", consumes = {"multipart/form-data"})
+	// 게시물 수정
+	@PutMapping(value = "/posts/{pid}", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> updatePost(
 			@PathVariable Long pid,
 			@RequestPart("post") PostCreateRequest postRequest,
@@ -64,7 +66,8 @@ public class PostController {
 		return new ResponseEntity<>(updatedPost, HttpStatus.OK);
 	}
 	
-	@DeleteMapping(value = "/{pid}")
+	// 게시물 삭제
+	@DeleteMapping(value = "/posts/{pid}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long pid) {
 		postService.deletePost(pid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
