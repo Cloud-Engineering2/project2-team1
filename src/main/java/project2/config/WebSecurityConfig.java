@@ -22,9 +22,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain sfc(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 authorize -> authorize
-                .requestMatchers("/register").permitAll()
-                .anyRequest().authenticated()
-        ).formLogin(withDefaults());      
+                .requestMatchers("/register").permitAll() // 회원 가입은 누구나 액세스 가능
+                .requestMatchers("/style/**").permitAll() // 정적 파일은 누구나 액세스 가능
+                .anyRequest().authenticated() // 그 외의 페이지는 인증 필요
+        ).formLogin(withDefaults()); // 로그인 페이지는 기본 제공되는 로그인 페이지 사용
         return http.build();
     }
 }

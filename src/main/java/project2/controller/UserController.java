@@ -17,13 +17,13 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
+    public String showRegisterForm(Model model) { // 회원 가입 페이지
         model.addAttribute("user", new UserRegistrationDto());
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUserAccount(@ModelAttribute("user") UserRegistrationDto registrationDto) {
+    public String registerUserAccount(@ModelAttribute("user") UserRegistrationDto registrationDto) { // 회원 가입 완료
         userService.save(registrationDto);
         return "redirect:/register?success";
     }

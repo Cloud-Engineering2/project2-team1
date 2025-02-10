@@ -15,11 +15,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public Users save(UserRegistrationDto registrationDto) {
+    public Users save(UserRegistrationDto registrationDto) { // 회원 정보 저장
         Users user = new Users();
         user.setUsername(registrationDto.getUsername());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
         user.setEmail(registrationDto.getEmail());
+        // 프로필 이미지 url 정보 저장용 코드 작성 필요
         return userRepository.save(user);
     }
 
