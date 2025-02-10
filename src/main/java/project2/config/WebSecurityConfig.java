@@ -24,8 +24,11 @@ public class WebSecurityConfig {
                 authorize -> authorize
                 .requestMatchers("/register").permitAll() // 회원 가입은 누구나 액세스 가능
                 .requestMatchers("/style/**").permitAll() // 정적 파일은 누구나 액세스 가능
-                .anyRequest().authenticated() // 그 외의 페이지는 인증 필요
-        ).formLogin(withDefaults()); // 로그인 페이지는 기본 제공되는 로그인 페이지 사용
+                // .anyRequest().authenticated() // 그 외의 페이지는 인증 필요
+                .anyRequest().permitAll() // 모든 요청 허용
+        ).formLogin(withDefaults()) // 로그인 페이지는 기본 제공되는 로그인 페이지 사용
+        .csrf(csrf -> csrf.disable()); // CSRF 보호 비활성화 (개발 환경에서만)
+                
         return http.build();
     }
 }
