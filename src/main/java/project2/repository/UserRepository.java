@@ -3,10 +3,11 @@ package project2.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import project2.entity.Posts;
+import project2.entity.Users;
 
 @Repository
-public interface PostRepository extends JpaRepository<Posts, Long> {
+public interface UserRepository extends JpaRepository<Users, Long> {
+
+    Users findByUsername(String username);
 
 }
-

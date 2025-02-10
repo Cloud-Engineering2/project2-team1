@@ -15,6 +15,9 @@ local.properties
 .loadpath
 .recommenders
 
+# application.properties
+*.properties
+
 # External tool builders
 .externalToolBuilders/
 
@@ -226,5 +229,7 @@ buildNumber.properties
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 .vscode/
+.devcontainer/
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,eclipse,java,intellij
+src/main/resources/application.properties
