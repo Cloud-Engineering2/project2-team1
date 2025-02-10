@@ -18,6 +18,7 @@ import project2.dto.UserProfileUpdateRequest;
 import project2.dto.UserRegistrationDto;
 import project2.dto.UserResponse;
 import project2.entity.Users;
+import project2.exception.ImageUploadException;
 import project2.exception.UserNotFoundException;
 import project2.exception.UsernameAlreadyExistsException;
 import project2.repository.UserRepository;
@@ -52,7 +53,7 @@ public class UserService {
         Users user = userRepository.findById(uid)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
         
-        // username 중복 체크 (현재 user가 아닌 다른 유저가 같은 username을 가지고 있는지 확인)
+        //username 중복 체크 (현재 user가 아닌 다른 유저가 같은 username을 가지고 있는지 확인)
         Optional.ofNullable(request.getUsername())
                 .filter(username -> !username.equals(user.getUsername())) // 기존 username과 다른 경우만 검사
                 .flatMap(username -> userRepository.existsByUsername(username) ? 
@@ -60,6 +61,7 @@ public class UserService {
                 .ifPresent(username -> {
                     throw new UsernameAlreadyExistsException("이미 사용 중인 사용자명입니다.");
                 });
+        
 
         String imageUrl = user.getProfileImageUrl();
 
@@ -77,7 +79,7 @@ public class UserService {
             try {
                 amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata));
             } catch (IOException e) {
-                throw new RuntimeException("Failed to upload image to S3", e);
+                throw new ImageUploadException("Failed to upload image to S3", e);
             }
             imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
         }
