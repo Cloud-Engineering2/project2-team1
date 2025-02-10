@@ -11,3 +11,4 @@ import project2.entity.Posts;
 public interface PostRepository extends JpaRepository<Posts, Long> {
 	List<Posts> findByUserUid(Long uid);
 }
+
