@@ -2,14 +2,7 @@ package project2.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import project2.controller.dto.CommentRequest;
+import org.springframework.web.bind.annotation.*;
 import project2.entity.Comments;
 import project2.service.CommentService;
 
@@ -19,7 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/comments")
 public class CommentsController {
-    
     @Autowired
     private CommentService commentService;
 
@@ -29,13 +21,21 @@ public class CommentsController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Comments> addComment(@RequestBody CommentRequest commentRequest) {
-        Comments comment = commentService.addComment(
-                commentRequest.getPostId(),
-                commentRequest.getUserId(),
-                commentRequest.getContent()
-        );
+    public ResponseEntity<Comments> addComment(@RequestParam Long postId, @RequestParam Long userId, @RequestParam String content) {
+        Comments comment = commentService.addComment(postId, userId, content);
         return ResponseEntity.ok(comment);
+    }
+
+    @PutMapping("/{cid}")
+    public ResponseEntity<Comments> updateComment(@PathVariable Long cid, @RequestParam String content) {
+        Comments comment = commentService.updateComment(cid, content);
+        return ResponseEntity.ok(comment);
+    }
+
+    @DeleteMapping("/{cid}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long cid) {
+        commentService.deleteComment(cid);
+        return ResponseEntity.noContent().build();
     }
 }
 

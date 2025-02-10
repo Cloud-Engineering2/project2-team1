@@ -7,6 +7,7 @@ import project2.entity.Posts;
 import project2.entity.Users;
 import project2.repository.CommentRepository;
 import project2.repository.PostRepository;
+import project2.repository.UserRepository;
 
 import java.util.Optional;
 import java.util.List;
@@ -20,6 +21,9 @@ public class CommentService {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public List<Comments> getCommentsByPostId(Long postId) {
         return commentRepository.findByPostPid(postId);
     }
@@ -31,8 +35,7 @@ public class CommentService {
         }
 
         Posts post = postOptional.get();
-        Users user = new Users();
-        user.setUid(userId);
+        Users user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("The user does not exist"));
 
         Comments comment = new Comments();
         comment.setPost(post);
@@ -40,7 +43,14 @@ public class CommentService {
         comment.setComment(content);
         return commentRepository.save(comment);
     }
+
+    public Comments updateComment(Long commentId, String content) {
+        Comments comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+        comment.setComment(content);
+        return commentRepository.save(comment);
+    }
+
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
+    }
 }
-
-
-//24.02.08 경민수정ver
