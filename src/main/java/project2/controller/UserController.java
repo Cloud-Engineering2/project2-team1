@@ -2,6 +2,7 @@ package project2.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,11 @@ public class UserController {
     public ResponseEntity<String> apiRegisterUserAccount(@RequestBody UserRegistrationDto registrationDto) {
         userService.registerUserAccount(registrationDto);
         return new ResponseEntity<>("회원 가입이 완료되었습니다.", HttpStatus.CREATED);
+    }
+
+    @GetMapping("/api/test")
+    public String test() {
+        return "test";
     }
     
 }
