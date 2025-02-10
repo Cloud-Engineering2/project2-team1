@@ -4,14 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class UserRegistrationDto {
+public class LoginReqDto {
     @NotNull
     private String username;
     @NotNull
     private String password;
-    @NotNull
-    private String email;
-    private String profileImageUrl;
-    private String bio;
-
 }
