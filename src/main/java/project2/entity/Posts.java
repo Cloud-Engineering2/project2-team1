@@ -40,4 +40,11 @@ public class Posts extends BaseTimeEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    public void updatePost(String content, LocalDateTime mealDate, MealType mealType, Long calories, String imageUrl) {
+    	this.content = content;
+    	this.mealDate = mealDate;
+    	this.mealType = mealType;
+    	this.calories = calories;
+    	this.imageUrl = imageUrl;
+    }
 }
