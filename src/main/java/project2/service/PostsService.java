@@ -17,4 +17,9 @@ public class PostsService {
         return postsRepository.findAll();
     }
 
+    // 2️ 특정 사용자 게시물 조회
+    public List<Posts> getPostsByUser(Long uid) {
+        return postsRepository.findByUserUid(uid);
+    }
+
 }
