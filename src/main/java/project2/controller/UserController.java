@@ -1,9 +1,9 @@
 package project2.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,9 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import lombok.RequiredArgsConstructor;
 import project2.dto.UserProfileUpdateRequest;
@@ -44,6 +41,13 @@ public class UserController {
     @GetMapping("/test")
     public String test() {
         return "test";
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.AUTHORIZATION, "") // 클라이언트가 JWT 삭제하도록 빈 값 반환
+                .body("로그아웃 되었습니다.");
     }
     
     @GetMapping("/users/{uid}")
