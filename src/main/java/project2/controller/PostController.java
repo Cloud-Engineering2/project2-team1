@@ -33,8 +33,8 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    // 특정 사용자의 게시물 조회 (GET /api/users/posts/{uid})
-    @GetMapping("/users/posts/{uid}")
+    // 특정 사용자의 게시물 조회 (GET /api/users/{uid}/posts)
+    @GetMapping("/users/{uid}/posts")
     public ResponseEntity<List<Posts>> getPostsByUser(@PathVariable("uid") Long uid) {
         List<Posts> posts = postService.getPostsByUser(uid);
         return ResponseEntity.ok(posts);
