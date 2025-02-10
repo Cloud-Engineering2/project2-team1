@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> UserNotFoundException(UserNotFoundException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
-            HttpStatus.BAD_REQUEST.value(),
+            HttpStatus.NOT_FOUND.value(),
             ex.getMessage(),
             "Not Found User",
             request.getRequestURI(),
