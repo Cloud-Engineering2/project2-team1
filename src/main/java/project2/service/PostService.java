@@ -1,6 +1,7 @@
 package project2.service;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,12 +23,14 @@ import project2.entity.Users;
 import project2.exception.ImageUploadException;
 import project2.exception.PostNotFoundException;
 import project2.repository.PostRepository;
+import project2.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
 	private final AmazonS3 amazonS3;
+	private final UserRepository userRepository;
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucketName;
@@ -39,9 +42,9 @@ public class PostService {
     
     // 2️ 특정 사용자 게시물 조회
     public List<Posts> getPostsByUser(Long uid) {
-        List<Posts> posts = postRepository.findByUserUid(uid);
-        
-        return posts;
+        return userRepository.findByUid(uid)
+                .map(user -> postRepository.findByUserUid(user.getUid()))
+                .orElse(Collections.emptyList()); // 사용자가 없을 경우 빈 리스트 반환
     }
     
     // 3️ 특정 게시물 상세 조회
