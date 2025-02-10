@@ -22,4 +22,8 @@ public class PostsService {
         return postsRepository.findByUserUid(uid);
     }
 
+    // 3️ 특정 게시물 상세 조회
+    public Optional<Posts> getPostById(Long pid) {
+        return postsRepository.findById(pid);
+    }
 }

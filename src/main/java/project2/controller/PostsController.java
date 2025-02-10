@@ -28,4 +28,11 @@ public class PostsController {
         return ResponseEntity.ok(posts);
     }
 
+    // 특정 게시물 상세 조회 (GET /api/posts/{pid})
+    @GetMapping("/{pid}")
+    public ResponseEntity<Posts> getPostById(@PathVariable("pid") Long pid) {
+        Optional<Posts> post = postsService.getPostById(pid);
+        return post.map(ResponseEntity::ok)
+                   .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

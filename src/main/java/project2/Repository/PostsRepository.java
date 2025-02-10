@@ -15,4 +15,7 @@ public interface PostsRepository extends JpaRepository<Posts, Long> {
     // 2️ 특정 사용자 게시물 조회
     List<Posts> findByUserUid(Long uid);
 
+    // 3️ 특정 게시물 상세 조회
+    Optional<Posts> findById(Long pid);
+	
 }
