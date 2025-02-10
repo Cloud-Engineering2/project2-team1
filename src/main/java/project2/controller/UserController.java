@@ -24,22 +24,24 @@ import project2.dto.UserResponse;
 import project2.entity.Users;
 import project2.service.UserService;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @RestController
 public class UserController {
     
     private final UserService userService;
 
-    @PostMapping("/api/register") // 회원 가입 API
+    @PostMapping("/register") // 회원 가입 API
     public ResponseEntity<String> apiRegisterUserAccount(@RequestBody UserRegistrationDto registrationDto) {
         userService.registerUserAccount(registrationDto);
         return new ResponseEntity<>("회원 가입이 완료되었습니다.", HttpStatus.CREATED);
     }
 
-    @GetMapping("/api/test")
+    @GetMapping("/test")
     public String test() {
         return "test";
     }

@@ -1,7 +1,6 @@
 package project2.service;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -53,14 +52,14 @@ public class UserService {
         Users user = userRepository.findById(uid)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
         
-        //username 중복 체크 (현재 user가 아닌 다른 유저가 같은 username을 가지고 있는지 확인)
-        Optional.ofNullable(request.getUsername())
-                .filter(username -> !username.equals(user.getUsername())) // 기존 username과 다른 경우만 검사
-                .flatMap(username -> userRepository.existsByUsername(username) ? 
-                         Optional.of(username) : Optional.empty())
-                .ifPresent(username -> {
-                    throw new UsernameAlreadyExistsException("이미 사용 중인 사용자명입니다.");
-                });
+        // 요청된 username과 현재 username 비교
+        String reqUsername = request.getUsername();
+        String currentUsername = user.getUsername();
+
+        // 요청된 username이 현재 username과 다르고, 이미 존재하는 username이라면 예외 발생
+        if (reqUsername != null && !reqUsername.equals(currentUsername) && userRepository.existsByUsername(reqUsername)) {
+            throw new UsernameAlreadyExistsException("이미 사용 중인 사용자명입니다.");
+        }
         
 
         String imageUrl = user.getProfileImageUrl();
