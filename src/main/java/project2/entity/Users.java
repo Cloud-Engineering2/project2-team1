@@ -1,7 +1,5 @@
 package project2.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,4 +33,16 @@ public class Users extends BaseTimeEntity {
     
     private String bio;
     
+    public Users updateProfile(String username, String bio, String profileImageUrl) {
+        return new Users(
+                this.uid,
+                username != null ? username : this.username,
+                this.password,
+                this.email,
+                profileImageUrl != null ? profileImageUrl : this.profileImageUrl,
+                bio != null ? bio : this.bio
+        );
+    }
+    
 }
+

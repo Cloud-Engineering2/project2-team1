@@ -232,4 +232,3 @@ buildNumber.properties
 .devcontainer/
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,eclipse,java,intellij
-src/main/resources/application.properties
