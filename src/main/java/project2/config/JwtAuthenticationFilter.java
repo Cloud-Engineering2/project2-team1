@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import project2.dto.LoginReqDto;
 import project2.dto.LoginRespDto;
+import project2.exception.UserNotFoundException;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -48,13 +49,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
 			 auth = authenticationManager.authenticate(authToken);
 		} catch (AuthenticationException e) { // 로그인 실패 시 예외 처리
-			try {
-				response.setCharacterEncoding("UTF-8");
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.getWriter().write("로그인 에러: ID와 PW를 확인하십시오. " + e.getMessage());
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			throw new UserNotFoundException("ID 또는 암호를 확인하십시오.");
 		}
         return auth;
     };
