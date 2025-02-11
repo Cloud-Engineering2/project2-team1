@@ -3,7 +3,7 @@ package project2.dto;
 import lombok.Getter;
 
 @Getter
-public class LoginRespDto {
+public class LoginResponseDto {
     private int status;
     private String message;
     private String token;
@@ -20,7 +20,7 @@ public class LoginRespDto {
      * @param timestamp 응답 시간
     */
 
-    public LoginRespDto(int status, String message, String token, String path, String username, String timestamp) {
+    public toDto(int status, String message, String token, String path, String username, String timestamp) {
         this.status = status;
         this.message = message;
         this.token = token;
