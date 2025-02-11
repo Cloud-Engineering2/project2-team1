@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,15 +46,6 @@ public class PostController {
         Posts post = postService.getPostById(pid); // 예외 발생 가능
         return ResponseEntity.ok(post);
     }
-    
-    // 특정 게시물 상세 조회 페이지 연동 (GET /api/posts/{pid}/detail)
-    @GetMapping("/posts/{pid}/detail")
-    public String getPostDetailPage(@PathVariable("pid") Long pid, Model model) {
-        Posts post = postService.getPostById(pid);
-        model.addAttribute("post", post);
-        return "post-detail"; // post-detail.html 템플릿 반환
-    }
-
     
     // 게시물 생성
 	@PostMapping(value = "/posts", consumes = {"multipart/form-data"})
