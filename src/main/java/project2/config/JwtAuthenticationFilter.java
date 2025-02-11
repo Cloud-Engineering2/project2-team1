@@ -1,5 +1,7 @@
 package project2.config;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,23 +18,25 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import project2.dto.LoginReqDto;
+import project2.dto.LoginRequestDto;
+import project2.dto.LoginResponseDto;
+import project2.exception.UserNotFoundException;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    
+	LoginRequestDto loginReqDTO = null; // username, password를 보관할 객체
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         
         ObjectMapper om = new ObjectMapper(); // json을 객체로 매핑하기 위한 객체
-        LoginReqDto loginReqDTO = null; // username, password를 보관할 객체
         
         try {
             // json을 읽어서 login request dto 객체 형식으로 변환한다.
-            loginReqDTO = om.readValue(request.getInputStream(), LoginReqDto.class);
+            loginReqDTO = om.readValue(request.getInputStream(), LoginRequestDto.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,9 +44,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UsernamePasswordAuthenticationToken authToken = 
                 new UsernamePasswordAuthenticationToken(loginReqDTO.getUsername(), loginReqDTO.getPassword());
         
+		Authentication auth = null;
         // Authentication 객체 생성
-        Authentication auth = authenticationManager.authenticate(authToken);
-
+        try {
+			 auth = authenticationManager.authenticate(authToken);
+		} catch (AuthenticationException e) { // 로그인 실패 시 예외 처리
+			throw new UserNotFoundException("ID 또는 암호를 확인하십시오.");
+		}
         return auth;
     };
 
@@ -54,8 +62,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String jwtAccToken = generateAccessToken(principalDetails);
 		String jwtRefToken = generateRefreshToken(principalDetails);
 		
-		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtAccToken);
+		String accessToken = JwtProperties.TOKEN_PREFIX + jwtAccToken;
+		response.addHeader(JwtProperties.HEADER_STRING, accessToken);
 		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtRefToken);
+
+		// Response Body에 토큰 및 응답 메시지를 담아서 전송
+		LoginResponseDto loginRespDto = new LoginResponseDto(HttpServletResponse.SC_OK, "로그인 성공", accessToken, request.getRequestURI(), loginReqDTO.getUsername() ,LocalDateTime.now().toString());
+		try {
+			response.setContentType("application/json");
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(new ObjectMapper().writeValueAsString(loginRespDto));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
