@@ -56,15 +56,15 @@ public class PostController {
 		return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
 	}
 	
-//	// 게시물 수정
-//	@PutMapping(value = "/posts/{pid}", consumes = {"multipart/form-data"})
-//	public ResponseEntity<PostResponse> updatePost(
-//			@PathVariable Long pid,
-//			@RequestPart("post") PostRequest postRequest,
-//			@RequestPart(value = "image", required = false) MultipartFile image) {
-//		PostResponse updatedPost = postService.updatePost(pid, postRequest, image);
-//		return new ResponseEntity<>(updatedPost, HttpStatus.OK);
-//	}
+	// 게시물 수정
+	@PutMapping(value = "/posts/{pid}", consumes = {"multipart/form-data"})
+	public ResponseEntity<PostResponse> updatePost(
+			@PathVariable Long pid,
+			@RequestPart("post") PostRequest postRequest,
+			@RequestPart(value = "image", required = false) MultipartFile[] images) {
+		PostResponse updatedPost = postService.updatePost(pid, postRequest, images);
+		return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+	}
 //	
 //	// 게시물 삭제
 //	@DeleteMapping(value = "/posts/{pid}")
