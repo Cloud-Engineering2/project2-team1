@@ -1,8 +1,11 @@
 package project2.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +22,9 @@ import lombok.RequiredArgsConstructor;
 import project2.dto.UserProfileUpdateRequest;
 import project2.dto.UserRegistrationDto;
 import project2.dto.UserResponse;
+import project2.entity.Posts;
 import project2.entity.Users;
+import project2.service.PostService;
 import project2.service.UserService;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     
     private final UserService userService;
+    private final PostService postService;
 
     @PostMapping(value = "/register", consumes = {"multipart/form-data"} ) // 회원 가입 API 
     public ResponseEntity<String> apiRegisterUserAccount(@RequestPart("user") UserRegistrationDto registrationDto,
@@ -56,6 +62,22 @@ public class UserController {
     public ResponseEntity<Users> getUserProfile(@PathVariable("uid") Long uid) {
         Users user = userService.getUserById(uid);
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+    
+    @GetMapping("/users/{uid}/profile")
+    public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
+        Users user = userService.getUserById(uid);
+        List<Posts> posts = postService.getPostsByUser(uid); // 사용자의 게시물 조회
+        model.addAttribute("user", user);
+        model.addAttribute("posts", posts);
+        return "profile"; // profile.html 반환
+    }
+    
+    @GetMapping("/users/{uid}/profile-edit")
+    public String getProfileEditPage(@PathVariable("uid") Long uid, Model model) {
+        Users user = userService.getUserById(uid);
+        model.addAttribute("user", user);
+        return "profile-edit"; // profile-edit.html 반환
     }
     
     @PutMapping("/users/{uid}")
