@@ -1,7 +1,5 @@
 package project2.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Comments extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +27,10 @@ public class Comments extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "uid")
     private Users user;
+
+    private String content;
     
-    private String comment;
+    public void updateComment(String content) {
+    	this.content = content;
+    }
 }

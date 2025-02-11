@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +34,8 @@ public class Posts extends BaseTimeEntity {
     @Column(name = "meal_date")
     private LocalDateTime mealDate;
     
-    @Column(name = "meal_type") 
+    @Enumerated(EnumType.STRING) // Enum 값을 String으로 저장
+    @Column(name = "meal_type")
     private MealType mealType;
     
     private Long calories;
@@ -41,10 +44,10 @@ public class Posts extends BaseTimeEntity {
     private String imageUrl;
 
     public void updatePost(String content, LocalDateTime mealDate, MealType mealType, Long calories, String imageUrl) {
-    	this.content = content;
-    	this.mealDate = mealDate;
-    	this.mealType = mealType;
-    	this.calories = calories;
-    	this.imageUrl = imageUrl;
+        this.content = content;
+        this.mealDate = mealDate;
+        this.mealType = mealType;
+        this.calories = calories;
+        this.imageUrl = imageUrl;
     }
 }
