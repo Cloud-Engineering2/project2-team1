@@ -15,7 +15,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import lombok.RequiredArgsConstructor;
-import project2.dto.PostCreateRequest;
+import project2.dto.PostRequest;
 import project2.dto.PostResponse;
 import project2.entity.Posts;
 import project2.entity.Users;
@@ -55,7 +55,7 @@ public class PostService {
     }
 
     // 게시물 생성
-	public PostResponse createPost(PostCreateRequest request, MultipartFile image) {
+	public PostResponse createPost(PostRequest request, MultipartFile image) {
 		String imageUrl = null;
 		
 		// 이미지 파일이 존재하면 S3에 업로드
@@ -109,7 +109,7 @@ public class PostService {
 	}
 
 	// 게시물 수정
-	public PostResponse updatePost(Long pid, PostCreateRequest request, MultipartFile image) {
+	public PostResponse updatePost(Long pid, PostRequest request, MultipartFile image) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
 		
