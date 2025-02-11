@@ -1,6 +1,7 @@
 package project2.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +16,5 @@ public class PostResponse {
     private final LocalDateTime mealDate;
     private final MealType mealType;
     private final Long calories;
-    private final String imageUrl;
+    private final List<String> imageUrlList;
 }

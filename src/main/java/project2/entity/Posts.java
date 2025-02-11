@@ -1,8 +1,12 @@
 package project2.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -40,14 +44,16 @@ public class Posts extends BaseTimeEntity {
     
     private Long calories;
     
+    @ElementCollection
+    @CollectionTable(name = "post_image_urls", joinColumns = @JoinColumn(name = "pid"))
     @Column(name = "image_url")
-    private String imageUrl;
+    private List<String> imageUrls = new ArrayList<>();
 
-    public void updatePost(String content, LocalDateTime mealDate, MealType mealType, Long calories, String imageUrl) {
+    public void updatePost(String content, LocalDateTime mealDate, MealType mealType, Long calories, List<String> imageUrls) {
         this.content = content;
         this.mealDate = mealDate;
         this.mealType = mealType;
         this.calories = calories;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
     }
 }
