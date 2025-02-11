@@ -20,7 +20,6 @@ import project2.dto.UserProfileUpdateRequest;
 import project2.dto.UserRegistrationDto;
 import project2.dto.UserResponse;
 import project2.entity.Users;
-import project2.service.PostService;
 import project2.service.UserService;
 
 import org.springframework.web.bind.annotation.RequestMapping;

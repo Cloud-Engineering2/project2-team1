@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +25,6 @@ import project2.service.PostService;
 @RequiredArgsConstructor
 public class PostController {
 	private final PostService postService;
-	
 	
 	// 전체 게시물 조회 (GET /api/posts)
     @GetMapping("/posts")
