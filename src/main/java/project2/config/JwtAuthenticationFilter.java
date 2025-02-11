@@ -18,7 +18,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import project2.dto.LoginReqDto;
+import project2.dto.LoginRequestDto;
 import project2.dto.LoginResponseDto;
 import project2.exception.UserNotFoundException;
 
@@ -26,7 +26,7 @@ import project2.exception.UserNotFoundException;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-	LoginReqDto loginReqDTO = null; // username, password를 보관할 객체
+	LoginRequestDto loginReqDTO = null; // username, password를 보관할 객체
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         
         try {
             // json을 읽어서 login request dto 객체 형식으로 변환한다.
-            loginReqDTO = om.readValue(request.getInputStream(), LoginReqDto.class);
+            loginReqDTO = om.readValue(request.getInputStream(), LoginRequestDto.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
