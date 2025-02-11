@@ -28,12 +28,6 @@ import project2.service.PostService;
 public class PostController {
 	private final PostService postService;
 	
-	@GetMapping
-    public String getPosts(Model model) {
-        List<Posts> posts = postService.getAllPosts(); // 서비스에서 게시글 목록 조회
-        model.addAttribute("posts", posts); // Thymeleaf로 데이터 전달
-        return "post-list"; // `post-list.html` 렌더링
-    }
 	
 	// 전체 게시물 조회 (GET /api/posts)
     @GetMapping("/posts")
