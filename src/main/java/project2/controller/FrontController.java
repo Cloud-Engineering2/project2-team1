@@ -20,17 +20,17 @@ public class FrontController {
     private final UserService userService;
     private final PostService postService;
 
-    @GetMapping("/login")
+    @GetMapping("/login") // 로그인
     public String getLoginPage() {
         return "login"; // login.html 반환
     }
 
-    @GetMapping("/register")
+    @GetMapping("/register") // 회원 가입
     public String getRegisterPage() {
         return "register"; // register.html 반환
     }
 
-    @GetMapping("/test")
+    @GetMapping("/test") // 로그인 테스트
     public String getTestPage() {
         return "test"; // test.html 반환
     }
@@ -50,5 +50,20 @@ public class FrontController {
         Users user = userService.getUserById(uid);
         model.addAttribute("user", user);
         return "profile-edit"; // profile-edit.html 반환
+    }
+
+    @GetMapping
+    public String getPosts(Model model) {
+        List<Posts> posts = postService.getAllPosts(); // 서비스에서 게시글 목록 조회
+        model.addAttribute("posts", posts); // Thymeleaf로 데이터 전달
+        return "post-list"; // `post-list.html` 렌더링
+    }
+
+    // 특정 게시물 상세 조회 페이지 연동 (GET /api/posts/{pid}/detail)
+    @GetMapping("/posts/{pid}/detail")
+    public String getPostDetailPage(@PathVariable("pid") Long pid, Model model) {
+        Posts post = postService.getPostById(pid);
+        model.addAttribute("post", post);
+        return "post-detail"; // post-detail.html 템플릿 반환
     }
 }
