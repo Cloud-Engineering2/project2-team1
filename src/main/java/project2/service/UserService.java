@@ -95,4 +95,12 @@ public class UserService {
                 .profileImageUrl(updatedUser.getProfileImageUrl())
                 .build();
     }
+
+    public void deleteUser(Long uid) {
+        Users user = userRepository.findById(uid)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
+
+        userRepository.delete(user);
+    }
+    
 }
