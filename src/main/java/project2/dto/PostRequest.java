@@ -12,7 +12,7 @@ import project2.enums.MealType;
 
 @Getter
 @Builder
-@JsonDeserialize(builder = PostRequest.PostCreateRequestBuilder.class)
+@JsonDeserialize(builder = PostRequest.PostRequestBuilder.class)
 public class PostRequest {
 	@NotNull
 	private final Long uid;
@@ -31,6 +31,6 @@ public class PostRequest {
 	
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class PostCreateRequestBuilder {
+    public static class PostRequestBuilder {
     }
 }
