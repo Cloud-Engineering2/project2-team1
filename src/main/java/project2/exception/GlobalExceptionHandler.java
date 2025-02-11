@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
+	
 	@ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
+  
 	@ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizationException(UnauthorizedException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(

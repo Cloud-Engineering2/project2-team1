@@ -31,10 +31,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    
-	private final AmazonS3 amazonS3;
-	
-	@Value("${cloud.aws.s3.bucket}")
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket}")
+
 	private String bucketName;
 
     public Users registerUserAccount(UserRegistrationDto registrationDto, MultipartFile image) { // 회원 정보 저장

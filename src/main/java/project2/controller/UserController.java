@@ -21,9 +21,10 @@ import project2.dto.UserRegistrationDto;
 import project2.dto.UserResponse;
 import project2.entity.Users;
 import project2.service.UserService;
+
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RequiredArgsConstructor
 @RequestMapping("/api")
