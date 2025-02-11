@@ -30,6 +30,12 @@ public class FrontController {
         return "register"; // register.html 반환
     }
 
+    @GetMapping("/test")
+    public String getTestPage() {
+        return "test"; // test.html 반환
+    }
+    
+
     @GetMapping("/users/{uid}/profile")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
         Users user = userService.getUserById(uid);
