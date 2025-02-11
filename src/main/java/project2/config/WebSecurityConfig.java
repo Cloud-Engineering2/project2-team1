@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 import lombok.RequiredArgsConstructor;
 import project2.repository.UserRepository;
@@ -40,8 +41,23 @@ public class WebSecurityConfig {
                 .requestMatchers("/api/register").permitAll() // 회원 가입은 누구나 액세스 가능
                 .requestMatchers("/api/login").permitAll() // 회원 가입은 누구나 액세스 가능
                 .requestMatchers("/style/**").permitAll() // 정적 파일은 누구나 액세스 가능
-                .anyRequest().authenticated() // 그 외의 페이지는 인증 필요
-                // .anyRequest().permitAll() // 모든 요청 허용
+                // 게시물 목록, 작성
+                .requestMatchers("/api/posts").authenticated()
+                // 특정 사용자 게시물 목록
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/users/[A-z0-9]+/posts")).authenticated()
+                // 게시물 상세 조회, 수정, 삭제
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/posts/[A-z0-9]+")).authenticated()
+                // 회원 탈퇴, 프로필 조회, 프로필 수정
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/users/[A-z0-9]+")).authenticated()
+                // 로그아웃
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/logout")).authenticated()
+                // 댓글 목록, 작성
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/posts/[A-z0-9]+/comments")).authenticated()
+                // 댓글 수정, 삭제
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/posts/[A-z0-9]+/comments/[A-z0-9]+")).authenticated()
+                // 로그인 테스트
+                .requestMatchers(RegexRequestMatcher.regexMatcher("/api/test")).authenticated()
+                .anyRequest().permitAll() // 그 외에는 모든 요청 허용
         ).formLogin(withDefaults()) // 로그인 페이지는 기본 제공되는 로그인 페이지 사용
         .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (개발 환경에서만)
         .formLogin(form -> form.disable())
