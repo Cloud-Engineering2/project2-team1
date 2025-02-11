@@ -20,12 +20,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import project2.dto.LoginRequestDto;
 import project2.dto.LoginResponseDto;
+import project2.entity.Users;
 import project2.exception.UserNotFoundException;
+import project2.repository.UserRepository;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+	private final UserRepository userRepository;
 	LoginRequestDto loginReqDTO = null; // username, password를 보관할 객체
 
     @Override
@@ -66,8 +69,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.addHeader(JwtProperties.HEADER_STRING, accessToken);
 		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtRefToken);
 
+		Users user = userRepository.findByUsername(loginReqDTO.getUsername());
 		// Response Body에 토큰 및 응답 메시지를 담아서 전송
-		LoginResponseDto loginRespDto = new LoginResponseDto(HttpServletResponse.SC_OK, "로그인 성공", accessToken, request.getRequestURI(), loginReqDTO.getUsername() ,LocalDateTime.now().toString());
+		LoginResponseDto loginRespDto = new LoginResponseDto(HttpServletResponse.SC_OK, "로그인 성공", accessToken, request.getRequestURI(), loginReqDTO.getUsername(), user.getUid() ,LocalDateTime.now().toString());
 		try {
 			response.setContentType("application/json");
 			response.setStatus(HttpServletResponse.SC_OK);
