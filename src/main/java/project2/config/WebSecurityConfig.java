@@ -78,7 +78,7 @@ public class WebSecurityConfig {
     	@Override
     	public void configure(HttpSecurity http) throws Exception {
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager);
+            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, userRepository);
 
             jwtAuthenticationFilter.setFilterProcessesUrl("/api/login"); // 로그인 URL 설정
         	http 
