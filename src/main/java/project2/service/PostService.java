@@ -198,25 +198,27 @@ public class PostService {
                 .build();
 	}
 	
-//
-//	// 게시물 삭제
-//	public void deletePost(Long pid) {
-//		Posts post = postRepository.findById(pid)
-//				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
-//		
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-//    	Users currentUser = userDetails.getUser();
-//    	
-//    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
-//    		throw new UnauthorizedException("No permission to delete the post");
-//    	}
-//		
-//		String imageUrl = post.getImageUrl();
-//		if (imageUrl != null) {
-//			String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
-//			amazonS3.deleteObject(bucketName, fileName);
-//		}
-//		postRepository.delete(post);
-//	}
+
+	// 게시물 삭제
+	public void deletePost(Long pid) {
+		Posts post = postRepository.findById(pid)
+				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users currentUser = userDetails.getUser();
+    	
+    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
+    		throw new UnauthorizedException("No permission to delete the post");
+    	}
+		
+		List<String> imageUrls = post.getImageUrls();
+		if (!imageUrls.isEmpty()) {
+			imageUrls.forEach(url -> {
+				String fileName = url.substring(url.indexOf("posts/"));
+				amazonS3.deleteObject(bucketName, fileName);
+			});
+		}
+		postRepository.delete(post);
+	}
 }

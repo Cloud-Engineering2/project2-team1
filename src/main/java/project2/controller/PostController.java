@@ -1,6 +1,8 @@
 package project2.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,11 +67,14 @@ public class PostController {
 		PostResponse updatedPost = postService.updatePost(pid, postRequest, images);
 		return new ResponseEntity<>(updatedPost, HttpStatus.OK);
 	}
-//	
-//	// 게시물 삭제
-//	@DeleteMapping(value = "/posts/{pid}")
-//	public ResponseEntity<Void> deletePost(@PathVariable Long pid) {
-//		postService.deletePost(pid);
-//		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//	}
+	
+	// 게시물 삭제
+	@DeleteMapping(value = "/posts/{pid}")
+	public ResponseEntity<?> deletePost(@PathVariable Long pid) {
+		postService.deletePost(pid);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Successfully delete post.");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }
