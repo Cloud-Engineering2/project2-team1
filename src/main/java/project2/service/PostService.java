@@ -136,7 +136,7 @@ public class PostService {
         List<String> updatedImageUrls = new ArrayList<>();
         List<String> imagesToDelete = new ArrayList<>();
 		
-    	// 업로드 요청 파일이 없는 경우 기존 이미지 목록 그대로 사용
+    	// 새로운 요청에 따른 이미지 파일 수정
     	if (images != null && images.length > 0) {
     		for (MultipartFile image : images) {
     			if (image.isEmpty()) continue;
