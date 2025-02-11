@@ -1,8 +1,10 @@
 package project2.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class LoginResponseDto {
     private int status;
     private String message;
@@ -20,12 +22,7 @@ public class LoginResponseDto {
      * @param timestamp 응답 시간
     */
 
-    public toDto(int status, String message, String token, String path, String username, String timestamp) {
-        this.status = status;
-        this.message = message;
-        this.token = token;
-        this.path = path;
-        this.username = username;
-        this.timestamp = timestamp;
+    public LoginResponseDto toDto(int status, String message, String token, String path, String username, String timestamp) {
+        return new LoginResponseDto(status, message, token, path, username, timestamp);
     }
 }
