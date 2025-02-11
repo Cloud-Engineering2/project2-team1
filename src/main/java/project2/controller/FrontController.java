@@ -35,7 +35,7 @@ public class FrontController {
         return "test"; // test.html 반환
     }
 
-    @GetMapping("/users/{uid}/profile")
+    @GetMapping("/{uid}/profile")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
         Users user = userService.getUserById(uid);
         List<Posts> posts = postService.getPostsByUser(uid); // 사용자의 게시물 조회
@@ -44,31 +44,35 @@ public class FrontController {
         return "profile"; // profile.html 반환
     }
 
-    @GetMapping("/users/{uid}/profile-edit")
+    @GetMapping("/{uid}/profile-edit")
     public String getProfileEditPage(@PathVariable("uid") Long uid, Model model) {
         Users user = userService.getUserById(uid);
         model.addAttribute("user", user);
         return "profile-edit"; // profile-edit.html 반환
     }
 
-    @GetMapping
+    @GetMapping("/post-list")
     public String getPosts(Model model) {
         List<Posts> posts = postService.getAllPosts(); // 서비스에서 게시글 목록 조회
         model.addAttribute("posts", posts); // Thymeleaf로 데이터 전달
         return "post-list"; // `post-list.html` 렌더링
     }
 
-    // 특정 게시물 상세 조회 페이지 연동 (GET /api/posts/{pid}/detail)
-    @GetMapping("/posts/{pid}/detail")
+    @GetMapping("/{pid}/detail")
     public String getPostDetailPage(@PathVariable("pid") Long pid, Model model) {
         Posts post = postService.getPostById(pid);
         model.addAttribute("post", post);
         return "post-detail"; // post-detail.html 템플릿 반환
     }
     
-    // 게시물 작성 페이지 반환
     @GetMapping("/post-create")
     public String getPostCreatePage() {
         return "post-create"; // post-create.html 반환
+    }
+    @GetMapping("/{pid}/post-edit") // 게시글 수정 페이지 추가
+    public String getPostEditPage(@PathVariable("pid") Long pid, Model model) {
+        Posts post = postService.getPostById(pid);
+        model.addAttribute("post", post);
+        return "post-edit"; // post-edit.html 반환
     }
 }
