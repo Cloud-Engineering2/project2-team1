@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
-import project2.dto.PostCreateRequest;
+import project2.dto.PostRequest;
 import project2.dto.PostResponse;
 import project2.entity.Posts;
 import project2.service.PostService;
@@ -50,7 +50,7 @@ public class PostController {
     // 게시물 생성
 	@PostMapping(value = "/posts", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> createPost(
-			@RequestPart("post") PostCreateRequest postRequest,
+			@RequestPart("post") PostRequest postRequest,
 			@RequestPart(value = "image", required = false) MultipartFile image) {
 		PostResponse createdPost = postService.createPost(postRequest, image);
 		return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
@@ -60,7 +60,7 @@ public class PostController {
 	@PutMapping(value = "/posts/{pid}", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> updatePost(
 			@PathVariable Long pid,
-			@RequestPart("post") PostCreateRequest postRequest,
+			@RequestPart("post") PostRequest postRequest,
 			@RequestPart(value = "image", required = false) MultipartFile image) {
 		PostResponse updatedPost = postService.updatePost(pid, postRequest, image);
 		return new ResponseEntity<>(updatedPost, HttpStatus.OK);

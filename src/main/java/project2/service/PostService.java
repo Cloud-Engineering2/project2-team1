@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,12 +17,14 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import lombok.RequiredArgsConstructor;
-import project2.dto.PostCreateRequest;
+import project2.config.PrincipalDetails;
+import project2.dto.PostRequest;
 import project2.dto.PostResponse;
 import project2.entity.Posts;
 import project2.entity.Users;
 import project2.exception.ImageUploadException;
 import project2.exception.PostNotFoundException;
+import project2.exception.UnauthorizedException;
 import project2.exception.UserNotFoundException;
 import project2.repository.PostRepository;
 import project2.repository.UserRepository;
@@ -55,7 +59,7 @@ public class PostService {
     }
 
     // 게시물 생성
-	public PostResponse createPost(PostCreateRequest request, MultipartFile image) {
+	public PostResponse createPost(PostRequest request, MultipartFile image) {
 		String imageUrl = null;
 		
 		// 이미지 파일이 존재하면 S3에 업로드
@@ -75,15 +79,9 @@ public class PostService {
 			imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
 		}
 		
-		// Dummy User
-		Users user = new Users(
-				1L,
-				"dummy",
-				"dummy",
-				"dummy@email.com",
-				null,
-				"dummy"
-		);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users user = userDetails.getUser();
 		
 		Posts post = new Posts(
 				null,
@@ -109,9 +107,17 @@ public class PostService {
 	}
 
 	// 게시물 수정
-	public PostResponse updatePost(Long pid, PostCreateRequest request, MultipartFile image) {
+	public PostResponse updatePost(Long pid, PostRequest request, MultipartFile image) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users currentUser = userDetails.getUser();
+    	
+    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
+    		throw new UnauthorizedException("No permission to edit the post");
+    	}
 		
 		String imageUrl = post.getImageUrl();
 		
@@ -162,6 +168,14 @@ public class PostService {
 	public void deletePost(Long pid) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	Users currentUser = userDetails.getUser();
+    	
+    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
+    		throw new UnauthorizedException("No permission to delete the post");
+    	}
 		
 		String imageUrl = post.getImageUrl();
 		if (imageUrl != null) {
