@@ -1,6 +1,7 @@
 package project2.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,24 +60,30 @@ public class PostService {
     }
 
     // 게시물 생성
-	public PostResponse createPost(PostRequest request, MultipartFile image) {
-		String imageUrl = null;
+	public PostResponse createPost(PostRequest request, MultipartFile[] images) {
+		List<String> imageUrls = new ArrayList<>();
 		
 		// 이미지 파일이 존재하면 S3에 업로드
-		if (image != null && !image.isEmpty()) {
-			// posts/UUID-원본파일명 형식으로 파일 저장 
-			String fileName = "posts/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
-			ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(image.getSize());
-			try {
-				amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
-						.withCannedAcl(CannedAccessControlList.PublicRead));
-			} catch (IOException e) {
-			    throw new ImageUploadException("Failed to upload new image to S3", e);
-			} catch (AmazonClientException e) {
-			    throw new ImageUploadException("Error communicating with S3", e);
+		if (images != null && images.length > 0) {
+			for (MultipartFile image : images) {
+				if (image != null && !image.isEmpty()) {
+					// posts/UUID-원본파일명 형식으로 파일 저장 
+					String fileName = "posts/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
+					ObjectMetadata metadata = new ObjectMetadata();
+		            metadata.setContentLength(image.getSize());
+					try {
+						amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
+								.withCannedAcl(CannedAccessControlList.PublicRead));
+					} catch (IOException e) {
+					    throw new ImageUploadException("Failed to upload new image to S3", e);
+					} catch (AmazonClientException e) {
+					    throw new ImageUploadException("Error communicating with S3", e);
+					}
+					String url = amazonS3.getUrl(bucketName, fileName).toString();
+					imageUrls.add(url);
+				}
 			}
-			imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
+			
 		}
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -90,7 +97,7 @@ public class PostService {
 				request.getMealDate(),
                 request.getMealType(),
                 request.getCalories(),
-                imageUrl
+                imageUrls
 		);
 		
 		Posts savedPost = postRepository.save(post);
@@ -102,86 +109,86 @@ public class PostService {
                 .mealDate(savedPost.getMealDate())
                 .mealType(savedPost.getMealType())
                 .calories(savedPost.getCalories())
-                .imageUrl(savedPost.getImageUrl())
+                .imageUrlList(savedPost.getImageUrls())
                 .build();
 	}
 
-	// 게시물 수정
-	public PostResponse updatePost(Long pid, PostRequest request, MultipartFile image) {
-		Posts post = postRepository.findById(pid)
-				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
-    	
-    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
-    		throw new UnauthorizedException("No permission to edit the post");
-    	}
-		
-		String imageUrl = post.getImageUrl();
-		
-		// 새 이미지가 업로드된 경우 기존 이미지 삭제 후 업로드
-		if (image != null && !image.isEmpty()) {
-			if (imageUrl != null) {
-				String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
-				amazonS3.deleteObject(bucketName, fileName);
-			}
-			
-			String fileName = "posts/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
-			ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(image.getSize());
-            
-            try {
-				amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
-						.withCannedAcl(CannedAccessControlList.PublicRead));
-			} catch (IOException e) {
-			    throw new ImageUploadException("Failed to upload new image to S3", e);
-			} catch (AmazonClientException e) {
-			    throw new ImageUploadException("Error communicating with S3", e);
-			}
-            imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
-		}
-		
-		post.updatePost(
-				request.getContent(), 
-				request.getMealDate(), 
-				request.getMealType(), 
-				request.getCalories(), 
-				imageUrl
-		);
-		
-		Posts savedPost = postRepository.save(post);
-		
-		return PostResponse.builder()
-                .pid(savedPost.getPid())
-                .uid(savedPost.getUser().getUid())
-                .content(savedPost.getContent())
-                .mealDate(savedPost.getMealDate())
-                .mealType(savedPost.getMealType())
-                .calories(savedPost.getCalories())
-                .imageUrl(savedPost.getImageUrl())
-                .build();
-	}
-
-	// 게시물 삭제
-	public void deletePost(Long pid) {
-		Posts post = postRepository.findById(pid)
-				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
-    	
-    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
-    		throw new UnauthorizedException("No permission to delete the post");
-    	}
-		
-		String imageUrl = post.getImageUrl();
-		if (imageUrl != null) {
-			String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
-			amazonS3.deleteObject(bucketName, fileName);
-		}
-		postRepository.delete(post);
-	}
+//	// 게시물 수정
+//	public PostResponse updatePost(Long pid, PostRequest request, MultipartFile image) {
+//		Posts post = postRepository.findById(pid)
+//				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+//		
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+//    	Users currentUser = userDetails.getUser();
+//    	
+//    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
+//    		throw new UnauthorizedException("No permission to edit the post");
+//    	}
+//		
+//		String imageUrl = post.getImageUrl();
+//		
+//		// 새 이미지가 업로드된 경우 기존 이미지 삭제 후 업로드
+//		if (image != null && !image.isEmpty()) {
+//			if (imageUrl != null) {
+//				String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
+//				amazonS3.deleteObject(bucketName, fileName);
+//			}
+//			
+//			String fileName = "posts/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
+//			ObjectMetadata metadata = new ObjectMetadata();
+//            metadata.setContentLength(image.getSize());
+//            
+//            try {
+//				amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
+//						.withCannedAcl(CannedAccessControlList.PublicRead));
+//			} catch (IOException e) {
+//			    throw new ImageUploadException("Failed to upload new image to S3", e);
+//			} catch (AmazonClientException e) {
+//			    throw new ImageUploadException("Error communicating with S3", e);
+//			}
+//            imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
+//		}
+//		
+//		post.updatePost(
+//				request.getContent(), 
+//				request.getMealDate(), 
+//				request.getMealType(), 
+//				request.getCalories(), 
+//				imageUrl
+//		);
+//		
+//		Posts savedPost = postRepository.save(post);
+//		
+//		return PostResponse.builder()
+//                .pid(savedPost.getPid())
+//                .uid(savedPost.getUser().getUid())
+//                .content(savedPost.getContent())
+//                .mealDate(savedPost.getMealDate())
+//                .mealType(savedPost.getMealType())
+//                .calories(savedPost.getCalories())
+//                .imageUrl(savedPost.getImageUrl())
+//                .build();
+//	}
+//
+//	// 게시물 삭제
+//	public void deletePost(Long pid) {
+//		Posts post = postRepository.findById(pid)
+//				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
+//		
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+//    	Users currentUser = userDetails.getUser();
+//    	
+//    	if (!post.getUser().getUid().equals(currentUser.getUid())) {
+//    		throw new UnauthorizedException("No permission to delete the post");
+//    	}
+//		
+//		String imageUrl = post.getImageUrl();
+//		if (imageUrl != null) {
+//			String fileName = imageUrl.substring(imageUrl.indexOf("posts/"));
+//			amazonS3.deleteObject(bucketName, fileName);
+//		}
+//		postRepository.delete(post);
+//	}
 }
