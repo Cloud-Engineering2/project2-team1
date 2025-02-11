@@ -34,7 +34,6 @@ public class FrontController {
     public String getTestPage() {
         return "test"; // test.html 반환
     }
-    
 
     @GetMapping("/users/{uid}/profile")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
@@ -65,5 +64,11 @@ public class FrontController {
         Posts post = postService.getPostById(pid);
         model.addAttribute("post", post);
         return "post-detail"; // post-detail.html 템플릿 반환
+    }
+    
+    // 게시물 작성 페이지 반환
+    @GetMapping("/post-create")
+    public String getPostCreatePage() {
+        return "post-create"; // post-create.html 반환
     }
 }

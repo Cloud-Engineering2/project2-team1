@@ -27,8 +27,7 @@ import project2.service.PostService;
 @RequiredArgsConstructor
 public class PostController {
 	private final PostService postService;
-	
-	
+
 	// 전체 게시물 조회 (GET /api/posts)
     @GetMapping("/posts")
     public ResponseEntity<List<Posts>> getAllPosts() {
