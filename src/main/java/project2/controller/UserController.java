@@ -1,9 +1,9 @@
 package project2.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,9 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import lombok.RequiredArgsConstructor;
 import project2.dto.UserProfileUpdateRequest;
 import project2.dto.UserRegistrationDto;
@@ -24,24 +21,33 @@ import project2.dto.UserResponse;
 import project2.entity.Users;
 import project2.service.UserService;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @RestController
 public class UserController {
     
     private final UserService userService;
 
-    @PostMapping("/api/register") // 회원 가입 API
+    @PostMapping("/register") // 회원 가입 API
     public ResponseEntity<String> apiRegisterUserAccount(@RequestBody UserRegistrationDto registrationDto) {
         userService.registerUserAccount(registrationDto);
         return new ResponseEntity<>("회원 가입이 완료되었습니다.", HttpStatus.CREATED);
     }
 
-    @GetMapping("/api/test")
+    @GetMapping("/test")
     public String test() {
         return "test";
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.AUTHORIZATION, "") // 클라이언트가 JWT 삭제하도록 빈 값 반환
+                .body("로그아웃 되었습니다.");
     }
     
     @GetMapping("/users/{uid}")
