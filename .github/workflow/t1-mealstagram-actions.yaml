@@ -3,7 +3,7 @@ name: App With Github Actions
 on:
   push:
     branches:
-      - develop // main
+      - develop
 
 jobs:
   ci:
@@ -76,3 +76,4 @@ jobs:
           git add .
           git commit -m "Update app image to latest"
           git push
+
