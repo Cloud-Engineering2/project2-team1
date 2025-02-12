@@ -51,9 +51,7 @@ public class CommentService {
     	Posts post = postRepository.findById(pid)
     			.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
     	
-    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users user = userDetails.getUser();
+    	Users user = getLoginUser();
     	
     	Comments comment = new Comments(
     			null,
@@ -80,9 +78,7 @@ public class CommentService {
         	throw new CommentNotBelongToPostException("Comment Not Belong To The Post");
         }
         
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
+    	Users currentUser = getLoginUser();
     	
     	if (!comment.getUser().getUid().equals(currentUser.getUid())) {
     		throw new UnauthorizedException("No permission to edit the comment");
@@ -108,9 +104,7 @@ public class CommentService {
         	throw new CommentNotBelongToPostException("Comment Not Belong To The Post");
         }
         
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
+    	Users currentUser = getLoginUser();
     	
     	if (!comment.getUser().getUid().equals(currentUser.getUid())) {
     		throw new UnauthorizedException("No permission to edit the comment");
@@ -118,4 +112,13 @@ public class CommentService {
     	
     	commentRepository.delete(comment);
     }
+    
+	private Users getLoginUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails)) {
+			throw new UnauthorizedException("Unauthenticated User");
+		}
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	return userDetails.getUser();
+	}
 }

@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizationException(UnauthorizedException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
-            HttpStatus.FORBIDDEN.value(), // 또는 HttpStatus.UNAUTHORIZED, 상황에 맞게 선택
+            HttpStatus.FORBIDDEN.value(),
             ex.getMessage(),
             "Unauthorized",
             request.getRequestURI(),
