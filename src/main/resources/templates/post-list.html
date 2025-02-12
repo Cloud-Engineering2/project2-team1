@@ -15,6 +15,10 @@
       font-family: Arial, sans-serif;
     }
 
+    .nav-item .btn {
+      margin: 10px;
+    }
+
     .container {
       max-width: 800px;
       margin: 0 auto;
@@ -71,8 +75,8 @@
   <!-- 헤더 -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/api/posts">
-        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고">
+      <a class="navbar-brand" href="/post-list">
+        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고" id="logoImage">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +88,7 @@
             <button class="btn btn-outline-success" id="createPostBtn">게시물 작성</button>
           </li>
           <li class="nav-item">
-            <a class="btn btn-outline-primary" href="#" id="profileBtn">프로필</a>
+            <a class="btn btn-outline-primary" id="profileBtn">프로필</a>
           </li>
           <li class="nav-item">
             <button class="btn btn-outline-danger" id="logoutBtn">로그아웃</button>
@@ -111,29 +115,59 @@
   <script>
     let page = 0;
     let loading = false;
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("페이지 로딩 완료!");
 
-    async function loadPosts() {
-      if (loading) return;
-      loading = true;
-      document.getElementById("loading").style.display = "block";
+      // 로고 클릭 시 "/post-list"로 이동
+      document.getElementById("logoImage").addEventListener("click", function () {
+        window.location.href = "/post-list";
+      });
 
-      try {
-        const response = await fetch(`/api/posts?page=${page}&size=10`);
-        const posts = await response.json();
+      function getUserIdFromToken() {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
 
-        if (posts.length === 0) {
-          document.getElementById("loading").innerText = "더 이상 게시물이 없습니다.";
-          return;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.uid;
+        } catch (error) {
+          console.error("토큰 파싱 오류:", error);
+          return null;
         }
+      }
+      // 프로필 버튼 클릭 시 "/profile/{uid}"로 이동
+      document.getElementById("profileBtn").addEventListener("click", function () {
+        const userId = getUserIdFromToken();
+        if (userId) {
+          window.location.href = "/profile/" + userId;
+        } else {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/login";
+        }
+      });
 
-        page++;
-        const postContainer = document.getElementById("postContainer");
+      async function loadPosts() {
+        if (loading) return;
+        loading = true;
+        document.getElementById("loading").style.display = "block";
 
-        posts.forEach(post => {
-          const postElement = document.createElement("div");
-          postElement.classList.add("post");
+        try {
+          const response = await fetch(`/api/posts?page=${page}&size=10`);
+          const posts = await response.json();
 
-          postElement.innerHTML = `
+          if (posts.length === 0) {
+            document.getElementById("loading").innerText = "더 이상 게시물이 없습니다.";
+            return;
+          }
+
+          page++;
+          const postContainer = document.getElementById("postContainer");
+
+          posts.forEach(post => {
+            const postElement = document.createElement("div");
+            postElement.classList.add("post");
+
+            postElement.innerHTML = `
                     <div class="post-header">
                         <img src="${post.user.profileImageUrl}" alt="프로필 이미지">
                         <span>${post.user.username}</span>
@@ -159,46 +193,50 @@
                     </div>
                 `;
 
-          postElement.addEventListener("click", function () {
-            window.location.href = `/posts/${post.id}/detail`;
+            postElement.addEventListener("click", function () {
+              window.location.href = `/detail/${post.id}`;
+            });
+
+            postContainer.appendChild(postElement);
           });
 
-          postContainer.appendChild(postElement);
-        });
-
-      } catch (error) {
-        console.error("게시물 불러오기 실패:", error);
-      } finally {
-        loading = false;
-        document.getElementById("loading").style.display = "none";
+        } catch (error) {
+          console.error("게시물 불러오기 실패:", error);
+        } finally {
+          loading = false;
+          document.getElementById("loading").style.display = "none";
+        }
       }
-    }
 
-    window.addEventListener("scroll", function () {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-        loadPosts();
-      }
-    });
+      window.addEventListener("scroll", function () {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+          loadPosts();
+        }
+      });
 
-    document.addEventListener("DOMContentLoaded", function () {
-      loadPosts();
+      // loadPosts();
 
       document.getElementById("createPostBtn").addEventListener("click", function () {
         window.location.href = "/post-create";
       });
 
       document.getElementById("logoutBtn").addEventListener("click", async function () {
+        console.log("로그아웃 버튼 클릭됨!");
+
         try {
-          const token = localStorage.getItem("token");
+          const token = localStorage.getItem("token"); // 토큰 가져오기
           const response = await fetch("/api/logout", {
             method: "POST",
             headers: {
-              "Authorization": "Bearer " + token,
+              "Authorization": "Bearer " + token, // 인증 토큰 포함
               "Content-Type": "application/json"
             }
           });
 
+          console.log("🔄 로그아웃 요청 응답 코드:", response.status);
+
           if (response.ok) {
+            console.log("로그아웃 성공!");
             localStorage.removeItem("token");
             window.location.href = "/login";
           } else {
@@ -208,6 +246,7 @@
           console.error("로그아웃 요청 실패:", error);
         }
       });
+
 
       document.getElementById("deleteAccountBtn").addEventListener("click", function () {
         const uid = getUserIdFromToken();

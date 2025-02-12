@@ -35,7 +35,7 @@ public class FrontController {
         return "test"; // test.html 반환
     }
 
-    @GetMapping("/{uid}/profile")
+    @GetMapping("/profile/{uid}")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
         Users user = userService.getUserById(uid);
         List<Posts> posts = postService.getPostsByUser(uid); // 사용자의 게시물 조회
@@ -44,7 +44,7 @@ public class FrontController {
         return "profile"; // profile.html 반환
     }
 
-    @GetMapping("/{uid}/profile-edit")
+    @GetMapping("/profile-edit/{uid}")
     public String getProfileEditPage(@PathVariable("uid") Long uid, Model model) {
         Users user = userService.getUserById(uid);
         model.addAttribute("user", user);
@@ -58,7 +58,7 @@ public class FrontController {
         return "post-list"; // `post-list.html` 렌더링
     }
 
-    @GetMapping("/{pid}/detail")
+    @GetMapping("/detail/{pid}")
     public String getPostDetailPage(@PathVariable("pid") Long pid, Model model) {
         Posts post = postService.getPostById(pid);
         model.addAttribute("post", post);
@@ -69,7 +69,7 @@ public class FrontController {
     public String getPostCreatePage() {
         return "post-create"; // post-create.html 반환
     }
-    @GetMapping("/{pid}/post-edit") // 게시글 수정 페이지 추가
+    @GetMapping("/post-edit/{pid}") // 게시글 수정 페이지 추가
     public String getPostEditPage(@PathVariable("pid") Long pid, Model model) {
         Posts post = postService.getPostById(pid);
         model.addAttribute("post", post);

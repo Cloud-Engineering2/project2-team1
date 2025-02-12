@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <title>게시물 작성</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
+    .nav-item .btn {
+      margin: 10px;
+    }
+
     .main-container {
       max-width: 1200px;
       margin: 50px auto;
@@ -13,10 +18,12 @@
       border-radius: 10px;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     }
+
     .post-container {
       display: flex;
       gap: 30px;
     }
+
     .image-upload-container {
       width: 500px;
       height: 500px;
@@ -29,6 +36,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .image-preview-container {
       width: 100%;
       height: 100%;
@@ -38,11 +46,13 @@
       padding: 10px;
       overflow-y: auto;
     }
+
     .image-preview-item {
       position: relative;
       width: calc(50% - 5px);
       padding-bottom: calc(50% - 5px);
     }
+
     .image-preview-item img {
       position: absolute;
       top: 0;
@@ -52,6 +62,7 @@
       object-fit: cover;
       border-radius: 5px;
     }
+
     .image-preview-item .remove-image {
       position: absolute;
       top: 5px;
@@ -67,6 +78,7 @@
       cursor: pointer;
       z-index: 1;
     }
+
     .meal-type-btn {
       padding: 5px 10px;
       border: 1px solid #ccc;
@@ -74,6 +86,7 @@
       cursor: pointer;
       background-color: white;
     }
+
     .meal-type-btn.selected {
       background-color: #007bff;
       color: white;
@@ -85,8 +98,8 @@
   <!-- 헤더 -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/api/posts">
-        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고">
+      <a class="navbar-brand" href="/post-list">
+        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고" id="logoImage">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -187,32 +200,32 @@
         const container = document.getElementById("imagePreviewContainer");
         const files = event.target.files;
         container.innerHTML = "";
-        
+
         // 선택된 파일들을 미리보기로 표시
         Array.from(files).forEach((file, index) => {
           const reader = new FileReader();
-          reader.onload = function(e) {
+          reader.onload = function (e) {
             const previewItem = document.createElement("div");
             previewItem.className = "image-preview-item";
-            
+
             const img = document.createElement("img");
             img.src = e.target.result;
-            
+
             const removeBtn = document.createElement("button");
             removeBtn.className = "remove-image";
             removeBtn.innerHTML = "×";
-            removeBtn.onclick = function(evt) {
+            removeBtn.onclick = function (evt) {
               evt.preventDefault();
               previewItem.remove();
             };
-            
+
             previewItem.appendChild(img);
             previewItem.appendChild(removeBtn);
             container.appendChild(previewItem);
           };
           reader.readAsDataURL(file);
         });
-        
+
         if (files.length > 0) {
           container.style.display = "flex";
           document.querySelector(".image-upload-container label p").style.display = "none";
@@ -240,43 +253,43 @@
 
         // JSON 데이터 추가
         let postData = {
-		  uid: getUserIdFromToken(),
+          uid: getUserIdFromToken(),
           content: content,
           mealDate: mealTime,
           mealType: mealType,
           calories: parseInt(calories)
         };
-        
+
         formData.append("post", new Blob([JSON.stringify(postData)], { type: "application/json" }));
 
         // 이미지 파일들 추가
         Array.from(files).forEach(file => {
           formData.append("image", file);
         });
-        
+
         for (let [key, value] of formData.entries()) {
-		  console.log(key, value);
-		}
+          console.log(key, value);
+        }
 
         try {
-	        let response = await fetch("/api/posts", {
-	            method: "POST",
-	            body: formData,
-	            headers: {
-	                "Authorization": "Bearer " + localStorage.getItem("token") // 토큰 추가
-	            }
-	        });
-	
-	        if (response.ok) {
-	            alert("게시글이 등록되었습니다.");
-	            window.location.href = "/post-list";
-	        } else {
-	            let errorData = await response.json();
-	            alert("게시글 등록 실패: " + errorData.message);
-	        }
-	    } catch (error) {
-	        console.error("오류 발생:", error);
-	    }
+          let response = await fetch("/api/posts", {
+            method: "POST",
+            body: formData,
+            headers: {
+              "Authorization": "Bearer " + localStorage.getItem("token") // 토큰 추가
+            }
+          });
+
+          if (response.ok) {
+            alert("게시글이 등록되었습니다.");
+            window.location.href = "/post-list";
+          } else {
+            let errorData = await response.json();
+            alert("게시글 등록 실패: " + errorData.message);
+          }
+        } catch (error) {
+          console.error("오류 발생:", error);
+        }
       });
 
       // 게시물 작성 버튼 클릭 이벤트
@@ -298,7 +311,7 @@
             }
           });
 
-          console.log("🔄 로그아웃 요청 응답 코드:", response.status);
+          console.log("로그아웃 요청 응답 코드:", response.status);
           if (response.ok) {
             console.log("로그아웃 성공!");
             localStorage.removeItem("token");
@@ -334,4 +347,5 @@
     });
   </script>
 </body>
+
 </html>

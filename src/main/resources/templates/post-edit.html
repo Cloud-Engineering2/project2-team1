@@ -8,7 +8,7 @@
   <style>
     /* 네비게이션 스타일 */
     .nav-item .btn {
-      margin-left: 10px;
+      margin: 10px;
     }
 
     .navbar-brand img {
@@ -104,8 +104,8 @@
   <!-- 헤더 -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/api/posts">
-        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고">
+      <a class="navbar-brand" href="/post-list">
+        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고" id="logoImage">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
