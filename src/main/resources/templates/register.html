@@ -52,23 +52,28 @@
                     const bio = document.getElementById('bio').value;
                     const image = document.getElementById('image').files[0];
                     const data = { username, password, email, bio};
-                    postJSON(data);
+                    postJSON(data, image);
                 });
         </script>
     </div>
     <script>
-        async function postJSON(data) {
+        async function postJSON(data, image) {
             try {
                 const formData = new FormData(); // multipart form-data 생성
                 const blob = new Blob([JSON.stringify(data)], { type: "application/json" }); // JSON 데이터를 Blob으로 변환
                 formData.append("user", blob); // form-data에 JSON 데이터 추가
                 
+                // 이미지 파일이 존재하면 "profileImage"에 추가
+                if (image) {
+					formData.append("profileImage", image)
+				}
+				
                 const response = await fetch("/api/register", {
                     method: "POST",
                     body: formData
-                }
-                );
-                const result = await response.status;
+                });
+                
+                const result = response.status;
                 if (result === 201) { // 가입 성공
                     window.location.href = "/login"; // 로그인 페이지로 이동
                 } else {
