@@ -70,7 +70,7 @@ public class PostController {
 	
 	// 게시물 삭제
 	@DeleteMapping(value = "/posts/{pid}")
-	public ResponseEntity<?> deletePost(@PathVariable Long pid) {
+	public ResponseEntity<?> deletePost(@PathVariable("pid") Long pid) {
 		postService.deletePost(pid);
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.OK.value());

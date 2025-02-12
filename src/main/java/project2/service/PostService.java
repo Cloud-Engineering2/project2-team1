@@ -97,7 +97,8 @@ public class PostService {
 				request.getMealDate(),
                 request.getMealType(),
                 request.getCalories(),
-                imageUrls
+                imageUrls,
+                new ArrayList<>()
 		);
 		
 		Posts savedPost = postRepository.save(post);
