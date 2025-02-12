@@ -27,11 +27,11 @@ import project2.service.PostService;
 @RequiredArgsConstructor
 public class PostController {
 	private final PostService postService;
-	
+
 	// 전체 게시물 조회 (GET /api/posts)
     @GetMapping("/posts")
-    public ResponseEntity<List<Posts>> getAllPosts() {
-        List<Posts> posts = postService.getAllPosts();
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
+        List<PostResponse> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
 
@@ -70,7 +70,7 @@ public class PostController {
 	
 	// 게시물 삭제
 	@DeleteMapping(value = "/posts/{pid}")
-	public ResponseEntity<?> deletePost(@PathVariable Long pid) {
+	public ResponseEntity<?> deletePost(@PathVariable("pid") Long pid) {
 		postService.deletePost(pid);
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.OK.value());

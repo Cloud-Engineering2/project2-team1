@@ -11,6 +11,7 @@ public class LoginResponseDto {
     private String token;
     private String path;
     private String username; 
+    private Long uid;
     private String timestamp;
 
     /**
@@ -22,7 +23,7 @@ public class LoginResponseDto {
      * @param timestamp 응답 시간
     */
 
-    public LoginResponseDto toDto(int status, String message, String token, String path, String username, String timestamp) {
-        return new LoginResponseDto(status, message, token, path, username, timestamp);
+    public LoginResponseDto toDto(int status, String message, String token, String path, String username, Long uid, String timestamp) {
+        return new LoginResponseDto(status, message, token, path, username, uid, timestamp);
     }
 }

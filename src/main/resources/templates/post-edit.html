@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>게시물 수정</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    /* 네비게이션 스타일 */
+    .nav-item .btn {
+      margin: 10px;
+    }
+
+    .navbar-brand img {
+      height: 30px;
+    }
+
+    /* 전체 컨테이너 */
+    .main-container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /* 게시물 컨테이너 */
+    .post-container {
+      display: flex;
+      gap: 30px;
+    }
+
+    /* 게시물 이미지 업로드 */
+    .image-upload-container {
+      width: 500px;
+      height: 500px;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      flex-direction: column;
+    }
+
+    /* 이미지 미리보기 */
+    .image-preview-container {
+      width: 500px;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .image-preview-container img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    /* 게시물 입력 폼 */
+    .post-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 식사 유형 버튼 */
+    .meal-type-container {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .meal-type-btn {
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: white;
+    }
+
+    .meal-type-btn.selected {
+      background-color: #007bff;
+      color: white;
+    }
+
+    /* 완료 및 취소 버튼 */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 헤더 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/post-list">
+        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고" id="logoImage">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button class="btn btn-outline-success" id="createPostBtn">게시물 작성</button>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-primary" href="#" id="profileBtn">프로필</a>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-danger" id="logoutBtn">로그아웃</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container main-container">
+    <form id="postForm" enctype="multipart/form-data">
+      <div class="post-container">
+        <!-- 이미지 업로드 영역 -->
+        <div class="image-upload-container">
+          <label for="imageUpload" class="w-100 h-100 d-flex align-items-center justify-content-center flex-column">
+            <p>게시글 사진<br>(여러 개 삽입 가능)</p>
+            <input type="file" id="imageUpload" name="images" accept="image/*" multiple class="d-none">
+          </label>
+        </div>
+
+        <!-- 이미지 미리보기 -->
+        <div class="image-preview-container" id="imagePreview">
+          <img th:each="image : ${post.images}" th:src="${image}" alt="기존 이미지">
+        </div>
+
+        <!-- 게시물 정보 입력 -->
+        <div class="post-info">
+          <div class="mb-3">
+            <label class="form-label">게시물 내용</label>
+            <textarea class="form-control" id="postContent" name="content" rows="3"
+              th:text="${post.content}"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">식사 시간</label>
+            <input type="datetime-local" class="form-control" id="mealTime" name="mealTime" th:value="${post.mealTime}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">식사 유형</label>
+            <div class="meal-type-container">
+              <span class="meal-type-btn" data-value="BREAKFAST">아침</span>
+              <span class="meal-type-btn" data-value="LUNCH">점심</span>
+              <span class="meal-type-btn" data-value="DINNER">저녁</span>
+              <span class="meal-type-btn" data-value="SNACK">간식</span>
+              <span class="meal-type-btn" data-value="YASIK">야식</span>
+            </div>
+            <input type="hidden" id="selectedMealType" name="mealType" th:value="${post.mealType}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">칼로리</label>
+            <input type="number" class="form-control" id="calories" name="calories" min="0" th:value="${post.calories}">
+          </div>
+
+          <!-- 완료 및 취소 버튼 -->
+          <div class="action-buttons">
+            <button type="submit" class="btn btn-primary">수정 완료</button>
+            <button type="button" class="btn btn-secondary" id="cancelButton">취소</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- 푸터 -->
+  <div class="footer">
+    <button class="btn btn-outline-secondary" id="deleteAccountBtn">회원탈퇴</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("페이지 로딩 완료!");
+
+      function getUserIdFromToken() {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.uid;
+        } catch (error) {
+          console.error("토큰 파싱 오류:", error);
+          return null;
+        }
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        let selectedMealType = document.getElementById("selectedMealType").value;
+        document.querySelectorAll(".meal-type-btn").forEach(btn => {
+          if (btn.dataset.value === selectedMealType) {
+            btn.classList.add("selected");
+          }
+        });
+
+        document.querySelectorAll(".meal-type-btn").forEach(btn => {
+          btn.addEventListener("click", function () {
+            document.querySelectorAll(".meal-type-btn").forEach(b => b.classList.remove("selected"));
+            this.classList.add("selected");
+            document.getElementById("selectedMealType").value = this.dataset.value;
+          });
+        });
+
+        document.getElementById("imageUpload").addEventListener("change", function (event) {
+          const previewContainer = document.getElementById("imagePreview");
+          previewContainer.innerHTML = "";
+          Array.from(event.target.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const img = document.createElement("img");
+              img.src = e.target.result;
+              previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+
+        document.getElementById("cancelButton").addEventListener("click", function () {
+          window.location.href = "/api/posts";
+        });
+        document.getElementById("createPostBtn").addEventListener("click", function () {
+          console.log("게시물 작성 버튼 클릭됨!");
+          window.location.href = "/post-create";
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", async function () {
+          console.log("로그아웃 버튼 클릭됨!");
+
+          try {
+            const response = await fetch("/api/logout", { method: "POST" });
+
+            console.log("🔄 로그아웃 요청 응답 코드:", response.status);
+
+            if (response.ok) {
+              console.log("로그아웃 성공!");
+              localStorage.removeItem("token");
+              window.location.href = "/login";
+            } else {
+              alert("로그아웃 실패!");
+            }
+          } catch (error) {
+            console.error("로그아웃 요청 실패:", error);
+          }
+        });
+
+        document.getElementById("deleteAccountBtn").addEventListener("click", function () {
+          const uid = getUserIdFromToken();
+          if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
+            fetch("/api/users/" + uid, {
+              method: "DELETE",
+              headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+            })
+              .then(response => {
+                if (response.ok) {
+                  alert("회원탈퇴가 완료되었습니다.");
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("userId"); // 추가: userId도 제거
+                  window.location.href = "/login";
+                } else {
+                  alert("회원탈퇴 실패!");
+                }
+              })
+              .catch(error => console.error("회원탈퇴 요청 실패:", error));
+          }
+        });
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

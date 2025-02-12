@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>프로필 수정</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    /* 네비게이션 스타일 */
+    .nav-item .btn {
+      margin: 10px;
+    }
+
+    .navbar-brand img {
+      height: 30px;
+    }
+
+    /* 전체 컨테이너 중앙 정렬 */
+    .profile-edit-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 10px;
+      background-color: #f8f9fa;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    /* 프로필 이미지 스타일 */
+    .profile-image-preview {
+      width: 300px;
+      height: 300px;
+      border-radius: 10px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 20px;
+      background-color: #e9ecef;
+      cursor: pointer;
+    }
+
+    /* 버튼 스타일 */
+    .btn-custom {
+      width: 100px;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body data-user-id="/*[[${user.uid}]]*/">
+
+  <!-- 헤더 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/post-list">
+        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고" id="logoImage">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button class="btn btn-outline-success" id="createPostBtn">게시물 작성</button>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-primary" href="#" id="profileBtn">프로필</a>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-danger" id="logoutBtn">로그아웃</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="profile-edit-container">
+      <h2 class="text-center">프로필 수정</h2>
+      <img id="profilePreview" th:src="${user.profileImageUrl}" alt="프로필 사진" class="profile-image-preview"
+        th:data-src="${user.profileImageUrl != null ? user.profileImageUrl : '/default-profile.jpg'}">
+      <input type="file" id="profileImage" name="image" accept="image/*" style="display: none;">
+      <form id="editProfileForm" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="username" class="form-label">사용자명</label>
+          <input type="text" class="form-control" id="username" name="username" th:value="${user.username}">
+        </div>
+        <div class="mb-3">
+          <label for="bio" class="form-label">자기소개</label>
+          <textarea class="form-control" id="bio" name="bio" rows="3" th:text="${user.bio}"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success btn-custom">완료</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="footer">
+    <button class="btn btn-outline-secondary" id="deleteAccountBtn">회원탈퇴</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("페이지 로딩 완료!");
+      const userId = getUserIdFromToken();
+
+      function getUserIdFromToken() {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.uid;
+        } catch (error) {
+          console.error("토큰 파싱 오류:", error);
+          return null;
+        }
+      }
+
+      function updateProfileButton() {
+        const userId = getUserIdFromToken();
+        const profileBtn = document.getElementById("profileBtn");
+
+        if (userId && profileBtn) {
+          profileBtn.setAttribute("href", "/api/users/" + userId);
+        } else if (profileBtn) {
+          profileBtn.setAttribute("href", "/api/login");
+        }
+      }
+
+      updateProfileButton();
+
+      document.getElementById("createPostBtn").addEventListener("click", function () {
+        console.log("게시물 작성 버튼 클릭됨!");
+        window.location.href = "/post-create";
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", async function () {
+        console.log("로그아웃 버튼 클릭됨!");
+
+        try {
+          const token = localStorage.getItem("token"); // 토큰 가져오기
+          const response = await fetch("/api/logout", {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token, // 인증 토큰 포함
+              "Content-Type": "application/json"
+            }
+          });
+
+          console.log("로그아웃 요청 응답 코드:", response.status);
+
+          if (response.ok) {
+            console.log("로그아웃 성공!");
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          } else {
+            alert("로그아웃 실패! (" + response.status + ")");
+          }
+        } catch (error) {
+          console.error("로그아웃 요청 실패:", error);
+        }
+      });
+
+      document.getElementById("deleteAccountBtn").addEventListener("click", function () {
+        const uid = getUserIdFromToken();
+        if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
+          fetch("/api/users/" + uid, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+          })
+            .then(response => {
+              if (response.ok) {
+                alert("회원탈퇴가 완료되었습니다.");
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+              } else {
+                alert("회원탈퇴 실패!");
+              }
+            })
+            .catch(error => console.error("회원탈퇴 요청 실패:", error));
+        }
+      });
+
+      function getUserIdFromToken() {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.error("토큰이 없습니다.");
+          return null;
+        }
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log("토큰에서 추출한 uid:", payload.uid);
+          return payload.uid;
+        } catch (error) {
+          console.error("토큰 파싱 오류:", error);
+          return null;
+        }
+      }
+
+      // 프로필 이미지 설정
+      const profilePreview = document.getElementById("profilePreview");
+      const initialImageUrl = profilePreview.dataset.profileUrl; // 데이터 속성에서 초기 이미지 가져오기
+
+      // 초기 이미지 설정
+      profilePreview.src = initialImageUrl || "/default-profile.jpg";
+
+      document.getElementById("profilePreview").addEventListener("click", function () {
+        document.getElementById("profileImage").click();
+      });
+
+      // 이미지 변경 시 미리보기 업데이트
+      document.getElementById("profileImage").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            profilePreview.src = e.target.result;
+          };
+          reader.onerror = function () {
+            console.error("이미지 로딩 실패");
+            profilePreview.src = initialImageUrl; // 오류 발생 시 초기 이미지로 복구
+          };
+          reader.readAsDataURL(file);
+        } else {
+          profilePreview.src = initialImageUrl; // 이미지 선택 취소 시 원래 이미지 복구
+        }
+      });
+
+      document.getElementById("editProfileForm").addEventListener("submit", async function (event) {
+        event.preventDefault(); // 기본 제출 방지
+
+        const userId = getUserIdFromToken();
+        if (!userId) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/login";
+          return;
+        }
+
+        const formData = new FormData();
+
+        // 사용자 데이터를 JSON 문자열로 변환
+        const userData = {
+          username: document.getElementById("username").value,
+          bio: document.getElementById("bio").value
+        };
+        const userJson = JSON.stringify(userData);
+
+        // FormData에 사용자 데이터 추가
+        formData.append("user", userJson);
+
+        // 프로필 이미지가 선택된 경우 FormData에 추가
+        const profileImage = document.getElementById("profileImage").files[0];
+        if (profileImage) {
+          formData.append("image", profileImage);
+        }
+
+        // FormData 내부 데이터 확인 (디버깅용)
+        console.log("FormData 전송 내용:");
+        formData.forEach((value, key) => {
+          console.log(`${key}:`, value);
+        });
+
+        try {
+          const response = await fetch(`/api/users/${userId}`, {
+            method: "PUT",
+            body: formData,
+            headers: {
+              "Authorization": "Bearer " + localStorage.getItem("token")
+            }
+          });
+
+          if (response.ok) {
+            alert("프로필이 업데이트되었습니다.");
+            window.location.href = `/profile/${userId}`;
+          } else {
+            let errorData = await response.json();
+            alert("프로필 업데이트 실패: " + errorData.message);
+          }
+        } catch (error) {
+          console.error("프로필 업데이트 요청 실패:", error);
+        }
+      });
+
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

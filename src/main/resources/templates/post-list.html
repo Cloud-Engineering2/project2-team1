@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 목록</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <style>
+    /* 전체 배경 및 폰트 스타일 */
+    body {
+      background-color: #f8f9fa;
+      color: black;
+      font-family: Arial, sans-serif;
+    }
+
+    .nav-item .btn {
+      margin: 10px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding-top: 20px;
+    }
+
+    /* 게시글 스타일 */
+    .post {
+      background: white;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 15px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      padding-bottom: 10px;
+    }
+
+    .post-header img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .post-meta {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    /* 게시물 캐러셀 */
+    .carousel-item img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    /* 무한 스크롤 로딩 */
+    .loading {
+      text-align: center;
+      color: #555;
+      font-size: 16px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 헤더 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/post-list">
+        <img th:src="@{/logo.jpg}" alt="Mealstagram 로고" id="logoImage">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button class="btn btn-outline-success" id="createPostBtn">게시물 작성</button>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-primary" id="profileBtn">프로필</a>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-danger" id="logoutBtn">로그아웃</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 class="text-center">게시글 목록</h2>
+
+    <div id="postContainer"></div>
+
+    <!-- 로딩 표시 -->
+    <div id="loading" class="loading">더 불러오는 중...</div>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="footer text-center p-3 bg-light">
+    <button class="btn btn-outline-secondary" id="deleteAccountBtn">회원탈퇴</button>
+  </div>
+
+  <script>
+    let page = 0;              // 현재 페이지 번호 (0부터 시작)
+    let loading = false;       // 로딩 중 여부
+    let noMorePosts = false;   // 더 이상 가져올 게시물이 없으면 true
+    const loadedPostIds = new Set(); // 이미 추가된 post의 id를 저장
+
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("페이지 로딩 완료!");
+
+      // 로고 클릭 시 "/post-list"로 이동
+      document.getElementById("logoImage").addEventListener("click", function () {
+        window.location.href = "/post-list";
+      });
+
+      function getUserIdFromToken() {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.uid;
+        } catch (error) {
+          console.error("토큰 파싱 오류:", error);
+          return null;
+        }
+      }
+
+      // 프로필 버튼 클릭 시 "/profile/{uid}"로 이동
+      document.getElementById("profileBtn").addEventListener("click", function () {
+        const userId = getUserIdFromToken();
+        if (userId) {
+          window.location.href = "/profile/" + userId;
+        } else {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/login";
+        }
+      });
+
+      async function loadPosts() {
+        // 로딩 중이거나 더 가져올 게시물이 없다면 종료
+        if (loading || noMorePosts) return;
+        loading = true;
+        document.getElementById("loading").style.display = "block";
+
+        try {
+          // 백엔드가 page와 limit를 지원하더라도
+          // 매 호출마다 동일한 26개의 데이터를 반환한다면,
+          // 프론트엔드에서 중복 추가를 막기 위해 페이지 번호와 loadedPostIds를 이용합니다.
+          const response = await fetch(`/api/posts?page=${page}&limit=10`);
+          const posts = await response.json();
+
+          // 필터링: 아직 추가되지 않은 게시물만 선택
+          const newPosts = posts.filter(post => !loadedPostIds.has(post.pid));
+
+          // 만약 새롭게 추가할 게시물이 없다면, 더 이상 로드할 필요가 없음
+          if (newPosts.length === 0) {
+            document.getElementById("loading").innerText = "더 이상 게시물이 없습니다.";
+            noMorePosts = true;
+            return;
+          }
+
+          const postContainer = document.getElementById("postContainer");
+          newPosts.forEach(post => {
+            // 새 게시물을 화면에 추가하고, 해당 post의 id를 기록
+            const postElement = document.createElement("div");
+            postElement.classList.add("post");
+
+            postElement.innerHTML = `
+              <div class="post-header">
+                <img src="${ (post.user && post.user.profileImageUrl) ? post.user.profileImageUrl : 'default_profile.jpg' }" alt="프로필 이미지">
+                <span>${ (post.user && post.user.username) ? post.user.username : '작성자: ' + post.uid }</span>
+              </div>
+              <p class="post-meta">
+                ${ new Date(post.mealDate).toLocaleString() } | ${ post.mealType } | ${ post.calories } kcal
+              </p>
+              <p>${ post.content }</p>
+              ${ (post.imageUrls && post.imageUrls.length > 0) ? `
+                <div id="carousel-${ post.pid }" class="carousel slide" data-bs-ride="carousel">
+                  <div class="carousel-inner">
+                    ${ post.imageUrls.map((img, index) => `
+                      <div class="carousel-item ${ index === 0 ? 'active' : '' }">
+                        <img src="${ img }" class="d-block w-100" alt="게시물 이미지">
+                      </div>
+                    `).join('') }
+                  </div>
+                  <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${ post.pid }" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  </button>
+                  <button class="carousel-control-next" type="button" data-bs-target="#carousel-${ post.pid }" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  </button>
+                </div>
+              ` : '' }
+            `;
+
+            // 게시물 클릭 시 상세 페이지로 이동 (post.pid 사용)
+            postElement.addEventListener("click", function () {
+              window.location.href = `/detail/${ post.pid }`;
+            });
+
+            postContainer.appendChild(postElement);
+            loadedPostIds.add(post.pid); // 이미 로드한 게시물 id 추가
+          });
+
+          // 페이지 번호 증가: 백엔드가 올바르게 페이징 처리하지 않더라도,
+          // page 값 증가 시 다음 호출로 넘긴다.
+          page++;
+
+          // 만약 현재 호출에서 반환된 게시물 수가 10개 미만이면,
+          // 더 이상 새 게시물이 없다고 가정
+          if (posts.length < 10) {
+            noMorePosts = true;
+            document.getElementById("loading").innerText = "더 이상 게시물이 없습니다.";
+          }
+        } catch (error) {
+          console.error("게시물 불러오기 실패:", error);
+        } finally {
+          loading = false;
+          if (!noMorePosts) {
+            document.getElementById("loading").style.display = "none";
+          }
+        }
+      }
+
+      // 스크롤 시 추가 로딩: 페이지 바닥에서 500px 이내로 오면 호출
+      window.addEventListener("scroll", function () {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+          loadPosts();
+        }
+      });
+
+      // 페이지 로딩 시 초기 게시물 호출
+      loadPosts();
+
+      // 게시물 작성 버튼
+      document.getElementById("createPostBtn").addEventListener("click", function () {
+        window.location.href = "/post-create";
+      });
+
+      // 로그아웃 버튼
+      document.getElementById("logoutBtn").addEventListener("click", async function () {
+        console.log("로그아웃 버튼 클릭됨!");
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/logout", {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "Content-Type": "application/json"
+            }
+          });
+          console.log("🔄 로그아웃 요청 응답 코드:", response.status);
+          if (response.ok) {
+            console.log("로그아웃 성공!");
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          } else {
+            alert("로그아웃 실패! (" + response.status + ")");
+          }
+        } catch (error) {
+          console.error("로그아웃 요청 실패:", error);
+        }
+      });
+
+      // 회원탈퇴 버튼
+      document.getElementById("deleteAccountBtn").addEventListener("click", function () {
+        const uid = getUserIdFromToken();
+        if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
+          fetch("/api/users/" + uid, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+          })
+            .then(response => {
+              if (response.ok) {
+                alert("회원탈퇴가 완료되었습니다.");
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+              } else {
+                alert("회원탈퇴 실패!");
+              }
+            })
+            .catch(error => console.error("회원탈퇴 요청 실패:", error));
+        }
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
