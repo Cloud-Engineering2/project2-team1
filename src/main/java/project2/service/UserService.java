@@ -55,7 +55,7 @@ public class UserService {
         // 이미지 파일이 존재하면 S3에 업로드
         if (image != null && !image.isEmpty()) {
             // users-UUID-원본파일명 형식으로 파일 저장
-            String fileName = "users/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
+            String fileName = "profile/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(image.getSize());
             try {
