@@ -73,16 +73,23 @@
                     body: formData
                 });
                 
-                const result = response.status;
-                if (result === 201) { // 가입 성공
-                    window.location.href = "/login"; // 로그인 페이지로 이동
-                } else {
-                    alert("가입에 실패하였습니다. id나 email이 중복되었을 수 있습니다.");
-                }
-                console.log("성공:", result);
-            } catch (error) {
-                console.error("실패:", error);
-            }
+                if (response.status === 201) {	// 가입 성공
+					window.location.href = "login";	// 로그인 페이지로 이동
+				} else {
+					let errorMessage = "회원가입에 실패했습니다";
+					try {
+						const errorData = await response.json();
+						if (errorData && errorData.message) {
+							errorMessage = errorData.message;
+						}
+					} catch (e) {
+						errorMessage = await response.text();
+					}
+					alert(errorMessage);
+				}
+			} catch (error) {
+				alert("회원가입에 실패했습니다.")
+			}
         }
     </script>      
     
