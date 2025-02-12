@@ -61,7 +61,7 @@ public class PostController {
 	// 게시물 수정
 	@PutMapping(value = "/posts/{pid}", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> updatePost(
-			@PathVariable Long pid,
+			@PathVariable("pid") Long pid,
 			@RequestPart("post") PostRequest postRequest,
 			@RequestPart(value = "image", required = false) MultipartFile[] images) {
 		PostResponse updatedPost = postService.updatePost(pid, postRequest, images);
