@@ -61,11 +61,22 @@ public class PostService {
     }
     
     // 특정 사용자 게시물 조회
-    public List<Posts> getPostsByUser(Long uid) {
+    public List<PostResponse> getPostsByUser(Long uid) {
     	userRepository.findById(uid)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
     	List<Posts> posts = postRepository.findByUserUid(uid);
-    	return posts;
+    	return posts.stream()
+    			.map(post -> PostResponse.builder()
+    					.pid(post.getPid())
+    					.username(post.getUser().getUsername())
+    					.profileImage(post.getUser().getProfileImageUrl())
+    					.content(post.getContent())
+    					.mealDate(post.getMealDate())
+    					.mealType(post.getMealType())
+    					.calories(post.getCalories())
+    					.imageUrlList(post.getImageUrls())
+    					.build()
+    			).collect(Collectors.toList());
     }
     
     //️ 특정 게시물 상세 조회

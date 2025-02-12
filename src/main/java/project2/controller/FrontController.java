@@ -39,9 +39,7 @@ public class FrontController {
     @GetMapping("/profile/{uid}")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
         Users user = userService.getUserById(uid);
-        List<Posts> posts = postService.getPostsByUser(uid); // 사용자의 게시물 조회
         model.addAttribute("user", user);
-        model.addAttribute("posts", posts);
         return "profile"; // profile.html 반환
     }
 
