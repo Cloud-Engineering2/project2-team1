@@ -112,152 +112,157 @@
     <button class="btn btn-outline-secondary" id="deleteAccountBtn">회원탈퇴</button>
   </div>
 
-  <script>
-    let page = 0;
-    let loading = false;
-    document.addEventListener("DOMContentLoaded", function () {
-      console.log("페이지 로딩 완료!");
-
-      // 로고 클릭 시 "/post-list"로 이동
-      document.getElementById("logoImage").addEventListener("click", function () {
-        window.location.href = "/post-list";
-      });
-
-      function getUserIdFromToken() {
-        const token = localStorage.getItem("token");
-        if (!token) return null;
-
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          return payload.uid;
-        } catch (error) {
-          console.error("토큰 파싱 오류:", error);
-          return null;
-        }
-      }
-      // 프로필 버튼 클릭 시 "/profile/{uid}"로 이동
-      document.getElementById("profileBtn").addEventListener("click", function () {
-        const userId = getUserIdFromToken();
-        if (userId) {
-          window.location.href = "/profile/" + userId;
-        } else {
-          alert("로그인이 필요합니다.");
-          window.location.href = "/login";
-        }
-      });
-
-      async function loadPosts() {
-        if (loading) return;
-        loading = true;
-        document.getElementById("loading").style.display = "block";
-
-        try {
-          const response = await fetch(`/api/posts?page=${page}&size=10`);
-          const posts = await response.json();
-
-          if (posts.length === 0) {
-            document.getElementById("loading").innerText = "더 이상 게시물이 없습니다.";
-            return;
-          }
-
-          page++;
-          const postContainer = document.getElementById("postContainer");
-
-          posts.forEach(post => {
-            const postElement = document.createElement("div");
-            postElement.classList.add("post");
-
-            postElement.innerHTML = `
-                    <div class="post-header">
-                        <img src="${post.user.profileImageUrl}" alt="프로필 이미지">
-                        <span>${post.user.username}</span>
-                    </div>
-                    <p class="post-meta">
-                        ${new Date(post.mealDate).toLocaleString()} | ${post.mealType} | ${post.calories} kcal
-                    </p>
-                    <p>${post.content}</p>
-                    <div id="carousel-${post.id}" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            ${post.images.map((img, index) => `
-                                <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                                    <img src="${img}" class="d-block w-100" alt="게시물 이미지">
-                                </div>
-                            `).join('')}
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${post.id}" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${post.id}" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                `;
-
-            postElement.addEventListener("click", function () {
-              window.location.href = `/detail/${post.id}`;
-            });
-
-            postContainer.appendChild(postElement);
-          });
-
-        } catch (error) {
-          console.error("게시물 불러오기 실패:", error);
-        } finally {
-          loading = false;
-          document.getElementById("loading").style.display = "none";
-        }
-      }
-
-      window.addEventListener("scroll", function () {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-          loadPosts();
-        }
-      });
-
-      // loadPosts();
-
-      document.getElementById("createPostBtn").addEventListener("click", function () {
-        window.location.href = "/post-create";
-      });
-
-      document.getElementById("logoutBtn").addEventListener("click", async function () {
-        console.log("로그아웃 버튼 클릭됨!");
-
-        try {
-          const token = localStorage.getItem("token"); // 토큰 가져오기
-          const response = await fetch("/api/logout", {
-            method: "POST",
-            headers: {
-              "Authorization": "Bearer " + token, // 인증 토큰 포함
-              "Content-Type": "application/json"
-            }
-          });
-
-          console.log("🔄 로그아웃 요청 응답 코드:", response.status);
-
-          if (response.ok) {
-            console.log("로그아웃 성공!");
-            localStorage.removeItem("token");
-            window.location.href = "/login";
-          } else {
-            alert("로그아웃 실패! (" + response.status + ")");
-          }
-        } catch (error) {
-          console.error("로그아웃 요청 실패:", error);
-        }
-      });
-
-
-      document.getElementById("deleteAccountBtn").addEventListener("click", function () {
-        const uid = getUserIdFromToken();
-        if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
-          fetch("/api/users/" + uid, {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-          })
-            .then(response => {
-              if (response.ok) {
-                alert("회원탈퇴가 완료되었습니다.");
+	<script>
+	  let page = 0;
+	  let loading = false;
+	  document.addEventListener("DOMContentLoaded", function () {
+	    console.log("페이지 로딩 완료!");
+	
+	    // 로고 클릭 시 "/post-list"로 이동
+	    document.getElementById("logoImage").addEventListener("click", function () {
+	      window.location.href = "/post-list";
+	    });
+	
+	    function getUserIdFromToken() {
+	      const token = localStorage.getItem("token");
+	      if (!token) return null;
+	      try {
+	        const payload = JSON.parse(atob(token.split('.')[1]));
+	        return payload.uid;
+	      } catch (error) {
+	        console.error("토큰 파싱 오류:", error);
+	        return null;
+	      }
+	    }
+	
+	    // 프로필 버튼 클릭 시 "/profile/{uid}"로 이동
+	    document.getElementById("profileBtn").addEventListener("click", function () {
+	      const userId = getUserIdFromToken();
+	      if (userId) {
+	        window.location.href = "/profile/" + userId;
+	      } else {
+	        alert("로그인이 필요합니다.");
+	        window.location.href = "/login";
+	      }
+	    });
+	
+	    async function loadPosts() {
+	      if (loading) return;
+	      loading = true;
+	      document.getElementById("loading").style.display = "block";
+	
+	      try {
+	        const response = await fetch(`/api/posts`);
+	        const posts = await response.json();
+	
+	        if (posts.length === 0) {
+	          document.getElementById("loading").innerText = "더 이상 게시물이 없습니다.";
+	          return;
+	        }
+	
+	        page++;
+	        const postContainer = document.getElementById("postContainer");
+	
+	        posts.forEach(post => {
+	          const postElement = document.createElement("div");
+	          postElement.classList.add("post");
+	
+	          // 게시물 정보를 출력 (작성자 정보가 있는 경우와 없는 경우를 구분)
+	          postElement.innerHTML = `
+	            <div class="post-header">
+	              <img src="${ post.user ? post.user.profileImageUrl : 'default_profile.jpg' }" alt="프로필 이미지">
+	              <span>${ post.user ? post.user.username : '작성자: ' + post.uid }</span>
+	            </div>
+	            <p class="post-meta">
+	              ${ new Date(post.mealDate).toLocaleString() } | ${ post.mealType } | ${ post.calories } kcal
+	            </p>
+	            <p>${ post.content }</p>
+	            ${ (post.imageUrls && post.imageUrls.length > 0) ? `
+	              <div id="carousel-${ post.pid }" class="carousel slide" data-bs-ride="carousel">
+	                <div class="carousel-inner">
+	                  ${ post.imageUrls.map((img, index) => `
+	                    <div class="carousel-item ${ index === 0 ? 'active' : '' }">
+	                      <img src="${ img }" class="d-block w-100" alt="게시물 이미지">
+	                    </div>
+	                  `).join('') }
+	                </div>
+	                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${ post.pid }" data-bs-slide="prev">
+	                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+	                </button>
+	                <button class="carousel-control-next" type="button" data-bs-target="#carousel-${ post.pid }" data-bs-slide="next">
+	                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+	                </button>
+	              </div>
+	            ` : '' }
+	          `;
+	
+	          // 게시물 클릭 시 상세 페이지로 이동 (식별자로 pid 사용)
+	          postElement.addEventListener("click", function () {
+	            window.location.href = `/detail/${ post.pid }`;
+	          });
+	
+	          postContainer.appendChild(postElement);
+	        });
+	
+	      } catch (error) {
+	        console.error("게시물 불러오기 실패:", error);
+	      } finally {
+	        loading = false;
+	        document.getElementById("loading").style.display = "none";
+	      }
+	    }
+	
+	    // 스크롤 시 추가 로딩
+	    window.addEventListener("scroll", function () {
+	      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+	        loadPosts();
+	      }
+	    });
+	
+	    // 페이지 로딩 시 초기 게시물 호출
+	    loadPosts();
+	
+	    // 게시물 작성 버튼
+	    document.getElementById("createPostBtn").addEventListener("click", function () {
+	      window.location.href = "/post-create";
+	    });
+	
+	    // 로그아웃 버튼
+	    document.getElementById("logoutBtn").addEventListener("click", async function () {
+	      console.log("로그아웃 버튼 클릭됨!");
+	      try {
+	        const token = localStorage.getItem("token");
+	        const response = await fetch("/api/logout", {
+	          method: "POST",
+	          headers: {
+	            "Authorization": "Bearer " + token,
+	            "Content-Type": "application/json"
+	          }
+	        });
+	        console.log("🔄 로그아웃 요청 응답 코드:", response.status);
+	        if (response.ok) {
+	          console.log("로그아웃 성공!");
+	          localStorage.removeItem("token");
+	          window.location.href = "/login";
+	        } else {
+	          alert("로그아웃 실패! (" + response.status + ")");
+	        }
+	      } catch (error) {
+	        console.error("로그아웃 요청 실패:", error);
+	      }
+	    });
+	
+	    // 회원탈퇴 버튼
+	    document.getElementById("deleteAccountBtn").addEventListener("click", function () {
+	      const uid = getUserIdFromToken();
+	      if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
+	        fetch("/api/users/" + uid, {
+	          method: "DELETE",
+	          headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+	        })
+	          .then(response => {
+	            if (response.ok) {
+	              alert("회원탈퇴가 완료되었습니다.");
                 localStorage.removeItem("token");
                 window.location.href = "/login";
               } else {
