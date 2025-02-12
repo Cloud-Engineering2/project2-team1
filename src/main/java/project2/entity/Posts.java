@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -15,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +50,10 @@ public class Posts extends BaseTimeEntity {
     @CollectionTable(name = "post_image_urls", joinColumns = @JoinColumn(name = "pid"))
     @Column(name = "image_url")
     private List<String> imageUrls = new ArrayList<>();
+    
+    // 연관된 댓글들을 Cascade 및 orphanRemoval 옵션으로 관리
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comments> comments = new ArrayList<>();
 
     public void updatePost(String content, LocalDateTime mealDate, MealType mealType, Long calories, List<String> imageUrls) {
         this.content = content;

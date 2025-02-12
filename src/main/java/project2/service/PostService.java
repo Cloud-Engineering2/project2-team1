@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -43,8 +44,19 @@ public class PostService {
 	private String bucketName;
 	
 	// 전체 게시물 조회
-    public List<Posts> getAllPosts() {
-        return postRepository.findAll();
+    public List<PostResponse> getAllPosts() {
+        List<Posts> posts = postRepository.findAll();
+        return posts.stream()
+    			.map(post -> PostResponse.builder()
+    					.pid(post.getPid())
+    					.uid(post.getUser().getUid())
+    					.content(post.getContent())
+    					.mealDate(post.getMealDate())
+    					.mealType(post.getMealType())
+    					.calories(post.getCalories())
+    					.imageUrlList(post.getImageUrls())
+    					.build()
+    			).collect(Collectors.toList());
     }
     
     // 특정 사용자 게시물 조회
@@ -88,9 +100,7 @@ public class PostService {
 			
 		}
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users user = userDetails.getUser();
+    	Users user = getLoginUser();
 		
 		Posts post = new Posts(
 				null,
@@ -99,7 +109,8 @@ public class PostService {
 				request.getMealDate(),
                 request.getMealType(),
                 request.getCalories(),
-                imageUrls
+                imageUrls,
+                new ArrayList<>()
 		);
 		
 		Posts savedPost = postRepository.save(post);
@@ -120,9 +131,7 @@ public class PostService {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
+    	Users currentUser = getLoginUser();
     	
     	if (!post.getUser().getUid().equals(currentUser.getUid())) {
     		throw new UnauthorizedException("No permission to edit the post");
@@ -197,16 +206,13 @@ public class PostService {
                 .imageUrlList(savedPost.getImageUrls())
                 .build();
 	}
-	
 
 	// 게시물 삭제
 	public void deletePost(Long pid) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
+    	Users currentUser = getLoginUser();
     	
     	if (!post.getUser().getUid().equals(currentUser.getUid())) {
     		throw new UnauthorizedException("No permission to delete the post");
@@ -220,5 +226,14 @@ public class PostService {
 			});
 		}
 		postRepository.delete(post);
+	}
+	
+	private Users getLoginUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails)) {
+			throw new UnauthorizedException("Unauthenticated User");
+		}
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	return userDetails.getUser();
 	}
 }
