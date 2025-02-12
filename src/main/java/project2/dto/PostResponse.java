@@ -12,8 +12,8 @@ import project2.enums.MealType;
 @Builder
 public class PostResponse {
 	private final Long pid;
-//    private final Long uid;
-	private final Users user;
+	private final String username;
+	private final String profileImage;
     private final String content;
     private final LocalDateTime mealDate;
     private final MealType mealType;
