@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -43,8 +44,19 @@ public class PostService {
 	private String bucketName;
 	
 	// 전체 게시물 조회
-    public List<Posts> getAllPosts() {
-        return postRepository.findAll();
+    public List<PostResponse> getAllPosts() {
+        List<Posts> posts = postRepository.findAll();
+        return posts.stream()
+    			.map(post -> PostResponse.builder()
+    					.pid(post.getPid())
+    					.uid(post.getUser().getUid())
+    					.content(post.getContent())
+    					.mealDate(post.getMealDate())
+    					.mealType(post.getMealType())
+    					.calories(post.getCalories())
+    					.imageUrlList(post.getImageUrls())
+    					.build()
+    			).collect(Collectors.toList());
     }
     
     // 특정 사용자 게시물 조회

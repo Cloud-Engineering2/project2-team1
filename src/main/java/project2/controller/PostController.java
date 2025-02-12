@@ -30,8 +30,8 @@ public class PostController {
 
 	// 전체 게시물 조회 (GET /api/posts)
     @GetMapping("/posts")
-    public ResponseEntity<List<Posts>> getAllPosts() {
-        List<Posts> posts = postService.getAllPosts();
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
+        List<PostResponse> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
 
