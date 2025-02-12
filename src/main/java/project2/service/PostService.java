@@ -49,7 +49,8 @@ public class PostService {
         return posts.stream()
     			.map(post -> PostResponse.builder()
     					.pid(post.getPid())
-    					.uid(post.getUser().getUid())
+    					.username(post.getUser().getUsername())
+    					.profileImage(post.getUser().getProfileImageUrl())
     					.content(post.getContent())
     					.mealDate(post.getMealDate())
     					.mealType(post.getMealType())
@@ -60,17 +61,39 @@ public class PostService {
     }
     
     // 특정 사용자 게시물 조회
-    public List<Posts> getPostsByUser(Long uid) {
+    public List<PostResponse> getPostsByUser(Long uid) {
     	userRepository.findById(uid)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
     	List<Posts> posts = postRepository.findByUserUid(uid);
-    	return posts;
+    	return posts.stream()
+    			.map(post -> PostResponse.builder()
+    					.pid(post.getPid())
+    					.username(post.getUser().getUsername())
+    					.profileImage(post.getUser().getProfileImageUrl())
+    					.content(post.getContent())
+    					.mealDate(post.getMealDate())
+    					.mealType(post.getMealType())
+    					.calories(post.getCalories())
+    					.imageUrlList(post.getImageUrls())
+    					.build()
+    			).collect(Collectors.toList());
     }
     
     //️ 특정 게시물 상세 조회
-    public Posts getPostById(Long pid) {
-        return postRepository.findById(pid)
+    public PostResponse getPostById(Long pid) {
+        Posts post = postRepository.findById(pid)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid)); // 예외 발생
+        
+        return PostResponse.builder()
+                .pid(post.getPid())
+                .username(post.getUser().getUsername())
+                .profileImage(post.getUser().getProfileImageUrl())
+                .content(post.getContent())
+                .mealDate(post.getMealDate())
+                .mealType(post.getMealType())
+                .calories(post.getCalories())
+                .imageUrlList(post.getImageUrls())
+                .build();
     }
 
     // 게시물 생성
@@ -117,7 +140,8 @@ public class PostService {
 		
 		return PostResponse.builder()
                 .pid(savedPost.getPid())
-                .uid(savedPost.getUser().getUid())
+                .username(savedPost.getUser().getUsername())
+                .profileImage(savedPost.getUser().getProfileImageUrl())
                 .content(savedPost.getContent())
                 .mealDate(savedPost.getMealDate())
                 .mealType(savedPost.getMealType())
@@ -198,7 +222,8 @@ public class PostService {
 		
 		return PostResponse.builder()
                 .pid(savedPost.getPid())
-                .uid(savedPost.getUser().getUid())
+                .username(savedPost.getUser().getUsername())
+                .profileImage(savedPost.getUser().getProfileImageUrl())
                 .content(savedPost.getContent())
                 .mealDate(savedPost.getMealDate())
                 .mealType(savedPost.getMealType())

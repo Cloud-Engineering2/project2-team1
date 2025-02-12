@@ -180,17 +180,17 @@
 
             postElement.innerHTML = `
               <div class="post-header">
-                <img src="${ (post.user && post.user.profileImageUrl) ? post.user.profileImageUrl : 'default_profile.jpg' }" alt="프로필 이미지">
-                <span>${ (post.user && post.user.username) ? post.user.username : '작성자: ' + post.uid }</span>
+                <img src="${ post.profileImage ? post.profileImage : 'default-profile.jpg' }" alt="프로필 이미지">
+                <span>${ post.username ? post.username : '작성자: ' + post.username }</span>
               </div>
               <p class="post-meta">
                 ${ new Date(post.mealDate).toLocaleString() } | ${ post.mealType } | ${ post.calories } kcal
               </p>
               <p>${ post.content }</p>
-              ${ (post.imageUrls && post.imageUrls.length > 0) ? `
+              ${ (post.imageUrlList && post.imageUrlList.length > 0) ? `
                 <div id="carousel-${ post.pid }" class="carousel slide" data-bs-ride="carousel">
                   <div class="carousel-inner">
-                    ${ post.imageUrls.map((img, index) => `
+                    ${ post.imageUrlList.map((img, index) => `
                       <div class="carousel-item ${ index === 0 ? 'active' : '' }">
                         <img src="${ img }" class="d-block w-100" alt="게시물 이미지">
                       </div>
@@ -207,9 +207,12 @@
             `;
 
             // 게시물 클릭 시 상세 페이지로 이동 (post.pid 사용)
-            postElement.addEventListener("click", function () {
-              window.location.href = `/detail/${ post.pid }`;
-            });
+            const headerDiv = postElement.querySelector(".post-header");
+			  if (headerDiv) {
+			    headerDiv.addEventListener("click", function () {
+			    window.location.href = `/detail/${ post.pid }`;
+			  });
+			}
 
             postContainer.appendChild(postElement);
             loadedPostIds.add(post.pid); // 이미 로드한 게시물 id 추가

@@ -8,6 +8,7 @@ import lombok.Getter;
 public class CommentResponse {
 	private final Long cid;
 	private final Long pid;
-    private final Long uid;
+    private final String username;
+    private final String profileImageUrl;
     private final String content;
 }

@@ -37,15 +37,15 @@ public class PostController {
 
     // 특정 사용자의 게시물 조회 (GET /api/users/{uid}/posts)
     @GetMapping("/users/{uid}/posts")
-    public ResponseEntity<List<Posts>> getPostsByUser(@PathVariable("uid") Long uid) {
-        List<Posts> posts = postService.getPostsByUser(uid);
+    public ResponseEntity<List<PostResponse>> getPostsByUser(@PathVariable("uid") Long uid) {
+        List<PostResponse> posts = postService.getPostsByUser(uid);
         return ResponseEntity.ok(posts);
     }
 
     // 특정 게시물 상세 조회 (GET /api/posts/{pid})
     @GetMapping("/posts/{pid}")
-    public ResponseEntity<Posts> getPostById(@PathVariable("pid") Long pid) {
-        Posts post = postService.getPostById(pid); // 예외 발생 가능
+    public ResponseEntity<PostResponse> getPostById(@PathVariable("pid") Long pid) {
+        PostResponse post = postService.getPostById(pid);
         return ResponseEntity.ok(post);
     }
     
@@ -53,7 +53,7 @@ public class PostController {
 	@PostMapping(value = "/posts", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> createPost(
 			@RequestPart("post") PostRequest postRequest,
-			@RequestPart(value = "image", required = false) MultipartFile[] images) {
+			@RequestPart(value = "image", required = true) MultipartFile[] images) {
 		PostResponse createdPost = postService.createPost(postRequest, images);
 		return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
 	}
