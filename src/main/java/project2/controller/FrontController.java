@@ -53,8 +53,8 @@ public class FrontController {
 
     @GetMapping("/post-list")
     public String getPosts(Model model) {
-        List<Posts> posts = postService.getAllPosts(); // 서비스에서 게시글 목록 조회
-        model.addAttribute("posts", posts); // Thymeleaf로 데이터 전달
+//        List<Posts> posts = postService.getAllPosts(); // 서비스에서 게시글 목록 조회
+//        model.addAttribute("posts", posts); // Thymeleaf로 데이터 전달
         return "post-list"; // `post-list.html` 렌더링
     }
 
