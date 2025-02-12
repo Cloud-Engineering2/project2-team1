@@ -39,7 +39,8 @@ public class CommentService {
     			.map(comment -> CommentResponse.builder()
     					.cid(comment.getCid())
     					.pid(comment.getPost().getPid())
-    					.uid(comment.getUser().getUid())
+    					.username(comment.getUser().getUsername())
+    					.profileImageUrl(comment.getUser().getProfileImageUrl())
     					.content(comment.getContent())
     					.build()
     				)
@@ -64,7 +65,8 @@ public class CommentService {
     	return CommentResponse.builder()
     			.cid(savedComment.getCid())
     			.pid(savedComment.getPost().getPid())
-    			.uid(savedComment.getUser().getUid())
+    			.username(savedComment.getUser().getUsername())
+    			.profileImageUrl(savedComment.getUser().getProfileImageUrl())
     			.content(savedComment.getContent())
     			.build();
     }
@@ -90,7 +92,8 @@ public class CommentService {
     	return CommentResponse.builder()
     			.cid(updatedComment.getCid())
     			.pid(updatedComment.getPost().getPid())
-    			.uid(updatedComment.getUser().getUid())
+    			.username(updatedComment.getUser().getUsername())
+    			.profileImageUrl(updatedComment.getUser().getProfileImageUrl())
     			.content(updatedComment.getContent())
     			.build();
     }

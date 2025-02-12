@@ -69,9 +69,20 @@ public class PostService {
     }
     
     //️ 특정 게시물 상세 조회
-    public Posts getPostById(Long pid) {
-        return postRepository.findById(pid)
+    public PostResponse getPostById(Long pid) {
+        Posts post = postRepository.findById(pid)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid)); // 예외 발생
+        
+        return PostResponse.builder()
+                .pid(post.getPid())
+                .username(post.getUser().getUsername())
+                .profileImage(post.getUser().getProfileImageUrl())
+                .content(post.getContent())
+                .mealDate(post.getMealDate())
+                .mealType(post.getMealType())
+                .calories(post.getCalories())
+                .imageUrlList(post.getImageUrls())
+                .build();
     }
 
     // 게시물 생성

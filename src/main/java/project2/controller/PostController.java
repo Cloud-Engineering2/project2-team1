@@ -44,8 +44,8 @@ public class PostController {
 
     // 특정 게시물 상세 조회 (GET /api/posts/{pid})
     @GetMapping("/posts/{pid}")
-    public ResponseEntity<Posts> getPostById(@PathVariable("pid") Long pid) {
-        Posts post = postService.getPostById(pid); // 예외 발생 가능
+    public ResponseEntity<PostResponse> getPostById(@PathVariable("pid") Long pid) {
+        PostResponse post = postService.getPostById(pid);
         return ResponseEntity.ok(post);
     }
     

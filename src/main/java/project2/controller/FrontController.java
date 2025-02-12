@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import lombok.RequiredArgsConstructor;
+import project2.dto.PostResponse;
 import project2.entity.Posts;
 import project2.entity.Users;
 import project2.service.PostService;
@@ -53,15 +54,11 @@ public class FrontController {
 
     @GetMapping("/post-list")
     public String getPosts(Model model) {
-//        List<Posts> posts = postService.getAllPosts(); // 서비스에서 게시글 목록 조회
-//        model.addAttribute("posts", posts); // Thymeleaf로 데이터 전달
         return "post-list"; // `post-list.html` 렌더링
     }
 
     @GetMapping("/detail/{pid}")
     public String getPostDetailPage(@PathVariable("pid") Long pid, Model model) {
-        Posts post = postService.getPostById(pid);
-        model.addAttribute("post", post);
         return "post-detail"; // post-detail.html 템플릿 반환
     }
     
@@ -71,7 +68,7 @@ public class FrontController {
     }
     @GetMapping("/post-edit/{pid}") // 게시글 수정 페이지 추가
     public String getPostEditPage(@PathVariable("pid") Long pid, Model model) {
-        Posts post = postService.getPostById(pid);
+        PostResponse post = postService.getPostById(pid);
         model.addAttribute("post", post);
         return "post-edit"; // post-edit.html 반환
     }
