@@ -180,8 +180,8 @@
 
             postElement.innerHTML = `
               <div class="post-header">
-                <img src="${ (post.user && post.user.profileImageUrl) ? post.user.profileImageUrl : 'default-profile.jpg' }" alt="프로필 이미지">
-                <span>${ (post.user && post.user.username) ? post.user.username : '작성자: ' + post.uid }</span>
+                <img src="${ post.profileImage ? post.profileImage : 'default-profile.jpg' }" alt="프로필 이미지">
+                <span>${ post.username ? post.username : '작성자: ' + post.username }</span>
               </div>
               <p class="post-meta">
                 ${ new Date(post.mealDate).toLocaleString() } | ${ post.mealType } | ${ post.calories } kcal
