@@ -45,8 +45,6 @@ public class FrontController {
 
     @GetMapping("/profile-edit/{uid}")
     public String getProfileEditPage(@PathVariable("uid") Long uid, Model model) {
-        Users user = userService.getUserById(uid);
-        model.addAttribute("user", user);
         return "profile-edit"; // profile-edit.html 반환
     }
 

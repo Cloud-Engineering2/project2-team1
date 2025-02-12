@@ -5,7 +5,6 @@ import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
-import project2.entity.Users;
 import project2.enums.MealType;
 
 @Getter
