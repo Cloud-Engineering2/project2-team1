@@ -3,7 +3,7 @@ name: App With Github Actions
 on:
   push:
     branches:
-      - develop
+      - develop // main
 
 jobs:
   ci:
