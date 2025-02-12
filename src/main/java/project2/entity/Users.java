@@ -33,16 +33,10 @@ public class Users extends BaseTimeEntity {
     
     private String bio;
     
-    public Users updateProfile(String username, String bio, String profileImageUrl) {
-        return new Users(
-                this.uid,
-                username != null ? username : this.username,
-                this.password,
-                this.email,
-                profileImageUrl != null ? profileImageUrl : this.profileImageUrl,
-                bio != null ? bio : this.bio
-        );
+    public void updateProfile(String username, String bio, String profileImageUrl) {
+        this.username = username;
+        this.bio = bio;
+        this.profileImageUrl = profileImageUrl;
     }
-    
 }
 

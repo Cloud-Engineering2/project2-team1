@@ -82,11 +82,10 @@ public class UserService {
         String reqUsername = request.getUsername();
         String currentUsername = user.getUsername();
 
-        // 요청된 username이 현재 username과 다르고, 이미 존재하는 username이라면 예외 발생
+        // 요청된 username이 새로운 username이면서 이미 존재하는 username이라면 예외 발생
         if (reqUsername != null && !reqUsername.equals(currentUsername) && userRepository.existsByUsername(reqUsername)) {
             throw new UsernameAlreadyExistsException("이미 사용 중인 사용자명입니다.");
         }
-        
 
         String imageUrl = user.getProfileImageUrl();
 
@@ -99,9 +98,8 @@ public class UserService {
             imageUrl = uploadImageToS3(image);
         }
 
-        // 기존 객체를 변경하지 않고, 새로운 객체를 만들어 저장
-        Users updatedUser = user.updateProfile(request.getUsername(), request.getBio(), imageUrl);
-        userRepository.save(updatedUser);
+        user.updateProfile(reqUsername, request.getBio(), imageUrl);
+        Users updatedUser = userRepository.save(user);
 
         return UserResponse.builder()
                 .uid(updatedUser.getUid())
