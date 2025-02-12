@@ -88,9 +88,7 @@ public class PostService {
 			
 		}
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users user = userDetails.getUser();
+    	Users user = getLoginUser();
 		
 		Posts post = new Posts(
 				null,
@@ -120,9 +118,7 @@ public class PostService {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
+    	Users currentUser = getLoginUser();
     	
     	if (!post.getUser().getUid().equals(currentUser.getUid())) {
     		throw new UnauthorizedException("No permission to edit the post");
@@ -197,16 +193,13 @@ public class PostService {
                 .imageUrlList(savedPost.getImageUrls())
                 .build();
 	}
-	
 
 	// 게시물 삭제
 	public void deletePost(Long pid) {
 		Posts post = postRepository.findById(pid)
 				.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + pid));
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
-    	Users currentUser = userDetails.getUser();
+    	Users currentUser = getLoginUser();
     	
     	if (!post.getUser().getUid().equals(currentUser.getUid())) {
     		throw new UnauthorizedException("No permission to delete the post");
@@ -220,5 +213,14 @@ public class PostService {
 			});
 		}
 		postRepository.delete(post);
+	}
+	
+	private Users getLoginUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails)) {
+			throw new UnauthorizedException("Unauthenticated User");
+		}
+    	PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+    	return userDetails.getUser();
 	}
 }

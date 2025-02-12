@@ -42,7 +42,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/api/login").permitAll() // 회원 가입은 누구나 액세스 가능
                 .requestMatchers("/style/**").permitAll() // 정적 파일은 누구나 액세스 가능
                 // 게시물 목록, 작성
-                .requestMatchers("/api/posts").authenticated()
+                .requestMatchers("/api/posts").permitAll()
                 // 특정 사용자 게시물 목록
                 .requestMatchers(RegexRequestMatcher.regexMatcher("/api/users/[A-z0-9]+/posts")).authenticated()
                 // 게시물 상세 조회, 수정, 삭제
