@@ -49,7 +49,7 @@ public class PostService {
         return posts.stream()
     			.map(post -> PostResponse.builder()
     					.pid(post.getPid())
-    					.uid(post.getUser().getUid())
+    					.user(post.getUser())
     					.content(post.getContent())
     					.mealDate(post.getMealDate())
     					.mealType(post.getMealType())
@@ -117,7 +117,7 @@ public class PostService {
 		
 		return PostResponse.builder()
                 .pid(savedPost.getPid())
-                .uid(savedPost.getUser().getUid())
+                .user(savedPost.getUser())
                 .content(savedPost.getContent())
                 .mealDate(savedPost.getMealDate())
                 .mealType(savedPost.getMealType())
@@ -198,7 +198,7 @@ public class PostService {
 		
 		return PostResponse.builder()
                 .pid(savedPost.getPid())
-                .uid(savedPost.getUser().getUid())
+                .user(savedPost.getUser())
                 .content(savedPost.getContent())
                 .mealDate(savedPost.getMealDate())
                 .mealType(savedPost.getMealType())
