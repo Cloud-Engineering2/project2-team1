@@ -34,9 +34,10 @@ public class UserService {
     private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
-
 	private String bucketName;
-
+    @Value("${cloud.aws.s3.default.profile}")
+    private String defaultProfileImage;
+	
     public Users registerUserAccount(UserRegistrationDto registrationDto, MultipartFile image) { // 회원 정보 저장
         Users user = new Users();
         String imageUrl = null;
@@ -54,19 +55,10 @@ public class UserService {
 
         // 이미지 파일이 존재하면 S3에 업로드
         if (image != null && !image.isEmpty()) {
-            // users-UUID-원본파일명 형식으로 파일 저장
-            String fileName = "profile/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(image.getSize());
-            try {
-                amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
-            } catch (IOException e) {
-                throw new ImageUploadException("Failed to upload new image to S3", e);
-            } catch (AmazonClientException e) {
-                throw new ImageUploadException("Error communicating with S3", e);
-            }
-            imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
+        	imageUrl = uploadImageToS3(image);
+        } 
+        else {	// 이미지 파일이 없으면 기본 이미지 설정
+        	imageUrl = defaultProfileImage; 
         }
 
         user.setUsername(registrationDto.getUsername());
@@ -100,21 +92,11 @@ public class UserService {
 
         // 새 이미지가 업로드된 경우 기존 이미지 삭제 후 업로드
         if (image != null && !image.isEmpty()) {
-            if (imageUrl != null) {
+            if (imageUrl != null && imageUrl.equals(defaultProfileImage)) {
                 String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
                 amazonS3.deleteObject(bucketName, fileName);
             }
-
-            String fileName = "profile/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(image.getSize());
-
-            try {
-                amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata));
-            } catch (IOException e) {
-                throw new ImageUploadException("Failed to upload image to S3", e);
-            }
-            imageUrl = amazonS3.getUrl(bucketName, fileName).toString();
+            imageUrl = uploadImageToS3(image);
         }
 
         // 기존 객체를 변경하지 않고, 새로운 객체를 만들어 저장
@@ -137,4 +119,20 @@ public class UserService {
         userRepository.delete(user);
     }
     
+    private String uploadImageToS3(MultipartFile image) {
+    	// profile/UUID-원본파일명 형식으로 파일 저장
+    	String fileName = "profile/" + UUID.randomUUID() + "-" + image.getOriginalFilename();
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(image.getSize());
+
+        try {
+            amazonS3.putObject(new PutObjectRequest(bucketName, fileName, image.getInputStream(), metadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new ImageUploadException("Failed to upload image to S3", e);
+        } catch (AmazonClientException e) {
+            throw new ImageUploadException("Error communicating with S3", e);
+        }
+        return amazonS3.getUrl(bucketName, fileName).toString();
+    }
 }
