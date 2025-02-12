@@ -53,7 +53,7 @@ public class PostController {
 	@PostMapping(value = "/posts", consumes = {"multipart/form-data"})
 	public ResponseEntity<PostResponse> createPost(
 			@RequestPart("post") PostRequest postRequest,
-			@RequestPart(value = "image", required = false) MultipartFile[] images) {
+			@RequestPart(value = "image", required = true) MultipartFile[] images) {
 		PostResponse createdPost = postService.createPost(postRequest, images);
 		return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
 	}
