@@ -44,7 +44,7 @@ public class CommentController {
     @PutMapping("/comments/{cid}")
     public ResponseEntity<CommentResponse> updateComment(
     		@PathVariable("pid") Long pid,
-    		@PathVariable Long cid,
+    		@PathVariable("cid") Long cid,
     		@RequestBody CommentRequest request) {
         CommentResponse updatedComment = commentService.updateComment(pid, cid, request);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
@@ -53,7 +53,7 @@ public class CommentController {
     @DeleteMapping("/comments/{cid}")
     public ResponseEntity<?> deleteComment(
     		@PathVariable("pid") Long pid,
-    		@PathVariable Long cid) {
+    		@PathVariable("cid") Long cid) {
         commentService.deleteComment(pid, cid);
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.OK.value());

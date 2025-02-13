@@ -253,7 +253,6 @@
       async function loadComments(pid) {
         const token = getToken();
         const currentUsername = token ? JSON.parse(atob(token.split('.')[1])).uname : null; // 현재 로그인한 사용자 username
-        // const decodedToken = token ? JSON.parse(atob(token.split('.')[1])) : null;
         try {
           const response = await fetch(`/api/posts/${pid}/comments`, {
             method: "GET",
@@ -275,7 +274,6 @@
           comments.forEach(comment => {
             const commentDiv = document.createElement("div");
             console.log("현재 로그인한 사용자 Username:", currentUsername);
-            // console.log("현재 로그인한 사용자 token:", decodedToken);
 
             const uid = comment.uid;
             console.log(uid);
