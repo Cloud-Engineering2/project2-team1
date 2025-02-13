@@ -35,6 +35,15 @@
     </div>
 
     <script>
+ 	  // 페이지 로드 시 로컬 스토리지에 토큰이 있는지 확인
+	  window.onload = function() {
+	    const token = localStorage.getItem("token");
+	    if (token) {
+	      // 토큰이 있으면 /post-list로 리다이렉트
+	      location.href = "/post-list";
+	    }
+	  };
+
       document.getElementById('loginForm')
         .addEventListener('submit', function (event) {
           event.preventDefault();
