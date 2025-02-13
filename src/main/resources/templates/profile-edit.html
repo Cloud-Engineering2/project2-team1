@@ -77,11 +77,6 @@
   <!-- 프로필 수정 화면이 동적으로 삽입될 컨테이너 -->
   <div id="profileEditContainer"></div>
 
-  <!-- 푸터 -->
-  <div class="footer text-center p-3 bg-light">
-    <button class="btn btn-outline-secondary" id="deleteAccountBtn">회원탈퇴</button>
-  </div>
-
   <!-- 부트스트랩 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
@@ -241,24 +236,6 @@
           }
         } catch (error) {
           console.error("로그아웃 요청 실패:", error);
-        }
-      });
-      document.getElementById("deleteAccountBtn").addEventListener("click", function () {
-        if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
-          fetch("/api/users/" + JSON.parse(atob(token.split('.')[1])).uid, {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + token }
-          })
-          .then(response => {
-            if (response.ok) {
-              alert("회원탈퇴가 완료되었습니다.");
-              localStorage.removeItem("token");
-              window.location.href = "/login";
-            } else {
-              alert("회원탈퇴 실패!");
-            }
-          })
-          .catch(error => console.error("회원탈퇴 요청 실패:", error));
         }
       });
     });
