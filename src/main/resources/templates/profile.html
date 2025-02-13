@@ -100,7 +100,7 @@
   </style>
 </head>
 
-<body data-user-id="/*[[${user.uid}]]*/">
+<body>
   <!-- 헤더 -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
@@ -167,6 +167,15 @@
         }
       }
 
+      // URL에서 uid 추출 (예: /profile/123 → "123")
+      function getProfileUidFromUrl() {
+        const pathParts = window.location.pathname.split("/");
+        return pathParts[pathParts.length - 1];
+      }
+
+      const profileUid = getProfileUidFromUrl();
+      console.log("프로필 uid:", profileUid);
+
       // 내비게이션 및 버튼 이벤트 처리
       document.getElementById("logoImage").addEventListener("click", function () {
         window.location.href = "/post-list";
@@ -194,13 +203,11 @@
         }
       });
       document.getElementById("editProfileBtn").addEventListener("click", function () {
-        const uid = getUserIdFromToken();
-        window.location.href = "/profile-edit/" + uid;
+        window.location.href = "/profile-edit/" + profileUid;
       });
       document.getElementById("deleteAccountBtn").addEventListener("click", function () {
-        const uid = getUserIdFromToken();
         if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
-          fetch("/api/users/" + uid, {
+          fetch("/api/users/" + profileUid, {
             method: "DELETE",
             headers: { "Authorization": "Bearer " + token }
           })
@@ -238,9 +245,7 @@
       }
 
       async function renderUserPosts() {
-        const uid = getUserIdFromToken();
-        if (!uid) return;
-        const posts = await fetchUserPosts(uid);
+        const posts = await fetchUserPosts(profileUid);
         const postsContainer = document.getElementById("postsContainer");
         postsContainer.innerHTML = "";
         if (posts.length === 0) {
