@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>게시물 상세</title>
@@ -8,9 +9,11 @@
     .nav-item .btn {
       margin: 10px;
     }
+
     .navbar-brand img {
       height: 60px;
     }
+
     .main-container {
       max-width: 1200px;
       margin: 50px auto;
@@ -19,10 +22,12 @@
       border-radius: 10px;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     }
+
     .post-container {
       display: flex;
       gap: 30px;
     }
+
     .post-carousel {
       width: 500px;
       height: 500px;
@@ -30,36 +35,42 @@
       overflow: hidden;
       border: 1px solid #ccc;
     }
+
     .carousel-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .post-info {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
+
     .profile-image {
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       object-fit: cover;
-      margin-right: 10px;
     }
+
     .user-info {
       display: flex;
       align-items: center;
       gap: 15px;
     }
+
     .post-actions {
       display: flex;
       gap: 10px;
     }
+
     .post-content {
       margin-top: 15px;
     }
+
     .comment-section {
       border-top: 1px solid #ddd;
       padding-top: 15px;
@@ -68,19 +79,22 @@
       flex-direction: column;
       height: 300px;
     }
+
     .comment-list {
       flex-grow: 1;
       overflow-y: auto;
       max-height: 200px;
       padding-right: 10px;
     }
+
     .comment {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
-      margin-bottom: 10px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
     }
+
     .comment-input-container {
       width: 100%;
       background-color: #e9ecef;
@@ -88,24 +102,37 @@
       border-top: 2px solid #ccc;
       border-radius: 0 0 10px 10px;
     }
+
     .comment-input {
       display: flex;
       gap: 10px;
       align-items: center;
     }
+
     .comment-input input {
       flex: 1;
       height: 40px;
       border-radius: 5px;
     }
+
     .comment-input button {
       height: 40px;
     }
+
     .comment-content {
-      margin-left: 65px;
+      flex-grow: 1;
+      /* 댓글 내용이 왼쪽 정렬 유지 */
+      margin-left: 15px;
+      /* 사용자 프로필과 간격 */
+    }
+
+    .btn-sm {
+      font-size: 14px;
+      padding: 5px 8px;
     }
   </style>
 </head>
+
 <body>
   <!-- 헤더 -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -114,7 +141,7 @@
         <img src="/logo.jpg" alt="Mealstagram 로고" id="logoImage">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
@@ -188,19 +215,19 @@
 
   <!-- 부트스트랩 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
+
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       console.log("페이지 로딩 완료!");
-      
+
       // URL에서 게시물 ID 추출 (예: /detail/123 → "123")
       const postId = window.location.pathname.split('/').pop();
-      
+
       // 토큰 가져오기
       function getToken() {
         return localStorage.getItem("token");
       }
-      
+
       // 게시물 상세 정보를 API 호출로 가져오기 (Authorization 헤더 포함)
       async function fetchPostDetails(pid) {
         const token = getToken();
@@ -221,10 +248,11 @@
           return null;
         }
       }
-      
+
       // 댓글 불러오기 함수
       async function loadComments(pid) {
         const token = getToken();
+        const currentUsername = token ? JSON.parse(atob(token.split('.')[1])).uname : null; // 현재 로그인한 사용자 username
         try {
           const response = await fetch(`/api/posts/${pid}/comments`, {
             method: "GET",
@@ -233,38 +261,139 @@
               "Content-Type": "application/json"
             }
           });
+
           if (!response.ok) {
             console.error("댓글 불러오기 실패: " + response.status);
             return;
           }
+
           const comments = await response.json();
           const commentList = document.getElementById("commentList");
           commentList.innerHTML = "";
+
           comments.forEach(comment => {
             const commentDiv = document.createElement("div");
-            commentDiv.className = "comment";
+            console.log("현재 로그인한 사용자 Username:", currentUsername);
+
+            const uid = comment.uid;
+            console.log(uid);
+            console.log("API 응답 데이터:", comments);
+
+            console.log("댓글 작성자 ID:", comment.uid);
+            commentDiv.className = "comment d-flex justify-content-between align-items-center p-2 border-bottom";
+
+            // 프로필 + 사용자명
             const commentUserInfo = document.createElement("div");
-            commentUserInfo.className = "user-info";
+            commentUserInfo.className = "d-flex align-items-center";
+
             const commentImg = document.createElement("img");
-            commentImg.src = (comment.cid && comment.profileImageUrl) ? comment.profileImageUrl : "/default-profile.jpg";
+            commentImg.src = comment.profileImageUrl || "/default-profile.jpg";
             commentImg.alt = "프로필 사진";
-            commentImg.className = "profile-image";
+            commentImg.className = "profile-image me-2"; // 오른쪽 간격 추가
+
             const commentUsername = document.createElement("strong");
-            commentUsername.innerText = (comment.cid && comment.username) ? comment.username : "undefined";
+            commentUsername.innerText = comment.username || "undefined";
+
             commentUserInfo.appendChild(commentImg);
             commentUserInfo.appendChild(commentUsername);
+
+            // 댓글 내용
             const commentContent = document.createElement("div");
-            commentContent.className = "comment-content";
+            commentContent.className = "comment-content flex-grow-1 ms-3"; // 왼쪽 여백 추가
             commentContent.innerText = comment.content;
+
+            // 버튼 컨테이너
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "d-flex gap-2 ms-auto"; // 오른쪽으로 밀기
+
+            // 수정
+            if (currentUsername && currentUsername === comment.username) {
+              // 수정 버튼
+              const editBtn = document.createElement("button");
+              editBtn.className = "btn btn-sm btn-outline-primary";
+              editBtn.innerText = "수정";
+              editBtn.onclick = function () {
+                const editInput = document.createElement("input");
+                editInput.type = "text";
+                editInput.className = "form-control";
+                editInput.value = comment.content;
+
+                const saveBtn = document.createElement("button");
+                saveBtn.className = "btn btn-sm btn-success ms-2"; // 왼쪽 간격 추가
+                saveBtn.innerText = "완료";
+                saveBtn.onclick = async function () {
+                  const updatedContent = editInput.value.trim();
+                  if (!updatedContent) {
+                    alert("댓글을 입력해주세요.");
+                    return;
+                  }
+
+                  try {
+                    const response = await fetch(`/api/posts/${pid}/comments/${comment.cid}`, {
+                      method: "PUT",
+                      headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify({ content: updatedContent })
+                    });
+
+                    if (response.ok) {
+                      loadComments(pid);
+                    } else {
+                      alert("댓글 수정 실패!");
+                    }
+                  } catch (error) {
+                    console.error("댓글 수정 중 오류 발생:", error);
+                  }
+                };
+
+                commentContent.innerHTML = "";
+                commentContent.appendChild(editInput);
+                commentContent.appendChild(saveBtn);
+              };
+
+              // 삭제 버튼
+              const deleteBtn = document.createElement("button");
+              deleteBtn.className = "btn btn-sm btn-outline-danger";
+              deleteBtn.innerText = "삭제";
+              deleteBtn.onclick = async function () {
+                if (confirm("정말로 삭제하시겠습니까?")) {
+                  try {
+                    const response = await fetch(`/api/posts/${pid}/comments/${comment.cid}`, {
+                      method: "DELETE",
+                      headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                      }
+                    });
+
+                    if (response.ok) {
+                      loadComments(pid);
+                    } else {
+                      alert("댓글 삭제 실패!");
+                    }
+                  } catch (error) {
+                    console.error("댓글 삭제 중 오류 발생:", error);
+                  }
+                }
+              };
+
+              buttonContainer.appendChild(editBtn);
+              buttonContainer.appendChild(deleteBtn);
+            }
+
             commentDiv.appendChild(commentUserInfo);
             commentDiv.appendChild(commentContent);
+            commentDiv.appendChild(buttonContainer);
             commentList.appendChild(commentDiv);
           });
+
         } catch (error) {
           console.error("댓글 불러오기 중 오류 발생:", error);
         }
       }
-      
+
       // 게시물 상세 정보를 화면에 렌더링하는 함수
       function renderPost(post) {
         // 이미지 캐러셀 구성
@@ -285,25 +414,25 @@
           // 이미지가 없으면 캐러셀 전체를 숨김
           document.getElementById("carouselContainer").style.display = "none";
         }
-        
+
         // 사용자 정보 및 게시물 내용
         const userProfileImage = document.getElementById("userProfileImage");
         const usernameDisplay = document.getElementById("usernameDisplay");
         userProfileImage.src = post.profileImage ? post.profileImage : "/default-profile.jpg";
         usernameDisplay.innerText = post.username ? post.username : "작성자 없음";
-        
+
         document.getElementById("postContent").innerText = post.content || "";
         document.getElementById("mealDate").innerText = post.mealDate || "";
         document.getElementById("mealType").innerText = post.mealType || "";
         document.getElementById("calories").innerText = post.calories || "";
-        
+
         // 수정 링크 설정
         document.getElementById("editLink").href = "/post-edit/" + post.pid;
-        
+
         // 삭제 버튼 이벤트 리스너 (중복 등록 방지를 위해 미리 제거 후 등록)
         const deleteBtn = document.getElementById("deletePost");
         deleteBtn.replaceWith(deleteBtn.cloneNode(true));
-        document.getElementById("deletePost").addEventListener("click", function() {
+        document.getElementById("deletePost").addEventListener("click", function () {
           if (confirm("정말로 삭제하시겠습니까?")) {
             const token = getToken();
             fetch(`/api/posts/${post.pid}`, {
@@ -324,11 +453,11 @@
             });
           }
         });
-        
+
         // 댓글 로딩
         loadComments(post.pid);
       }
-      
+
       // 댓글 작성 이벤트
       document.getElementById("postComment").addEventListener("click", function () {
         const commentInput = document.getElementById("commentInput").value;
@@ -358,7 +487,7 @@
           alert(error.message);
         });
       });
-      
+
       // 내비게이션 이벤트 핸들러
       document.getElementById("logoImage").addEventListener("click", function () {
         window.location.href = "/post-list";
@@ -403,19 +532,19 @@
             method: "DELETE",
             headers: { "Authorization": "Bearer " + token }
           })
-          .then(response => {
-            if (response.ok) {
-              alert("회원탈퇴가 완료되었습니다.");
-              localStorage.removeItem("token");
-              window.location.href = "/login";
-            } else {
-              alert("회원탈퇴 실패!");
-            }
-          })
-          .catch(error => console.error("회원탈퇴 요청 실패:", error));
+            .then(response => {
+              if (response.ok) {
+                alert("회원탈퇴가 완료되었습니다.");
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+              } else {
+                alert("회원탈퇴 실패!");
+              }
+            })
+            .catch(error => console.error("회원탈퇴 요청 실패:", error));
         }
       });
-      
+
       // API 호출하여 게시물 상세 정보 가져오기 및 렌더링
       fetchPostDetails(postId).then(post => {
         if (post) {
@@ -427,4 +556,5 @@
     });
   </script>
 </body>
+
 </html>
