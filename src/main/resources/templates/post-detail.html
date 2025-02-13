@@ -353,7 +353,7 @@
                 commentContent.appendChild(saveBtn);
               };
 
-              // 삭제 버튼
+              // 댓글 삭제 버튼
               const deleteBtn = document.createElement("button");
               deleteBtn.className = "btn btn-sm btn-outline-danger";
               deleteBtn.innerText = "삭제";
@@ -429,10 +429,30 @@
         // 수정 링크 설정
         document.getElementById("editLink").href = "/post-edit/" + post.pid;
 
+        const token = getToken();
+        const currentUser = token ? JSON.parse(atob(token.split('.')[1])) : null;
+        console.log("CurrentUser:", currentUser);
+        console.log(post);
+
+
+        // 게시글 작성자와 현재 사용자가 일치하는 경우에만 버튼 표시
+        // post 객체에 작성자의 uid가 포함되어 있다고 가정합니다.
+        if (currentUser && currentUser.uid === post.uid) {
+          // 작성자일 때: 버튼 보이기 및 링크 설정
+          editLink.style.display = "inline-block";
+          deletePost.style.display = "inline-block";
+          editLink.href = "/post-edit/" + post.pid;
+        } else {
+          // 작성자가 아닐 때: 버튼 숨기기
+          editLink.style.display = "none";
+          deletePost.style.display = "none";
+        }
+
         // 삭제 버튼 이벤트 리스너 (중복 등록 방지를 위해 미리 제거 후 등록)
-        const deleteBtn = document.getElementById("deletePost");
-        deleteBtn.replaceWith(deleteBtn.cloneNode(true));
+
+        // deleteBtn.replaceWith(deleteBtn.cloneNode(true));
         document.getElementById("deletePost").addEventListener("click", function () {
+          const deleteBtn = document.getElementById("deletePost");
           if (confirm("정말로 삭제하시겠습니까?")) {
             const token = getToken();
             fetch(`/api/posts/${post.pid}`, {
