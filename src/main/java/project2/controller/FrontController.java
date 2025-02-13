@@ -1,7 +1,5 @@
 package project2.controller;
 
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,18 +7,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import lombok.RequiredArgsConstructor;
 import project2.dto.PostResponse;
-import project2.entity.Posts;
-import project2.entity.Users;
 import project2.service.PostService;
-import project2.service.UserService;
 
 @RequiredArgsConstructor
 @Controller
 public class FrontController {
 
-    private final UserService userService;
     private final PostService postService;
 
+    @GetMapping("/")
+    public String redirectPage() {
+            return "redirect:/login"; // /login으로 리다이렉트
+    }
+    
     @GetMapping("/login") // 로그인
     public String getLoginPage() {
         return "login"; // login.html 반환
@@ -38,8 +37,6 @@ public class FrontController {
 
     @GetMapping("/profile/{uid}")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
-        Users user = userService.getUserById(uid);
-        model.addAttribute("user", user);
         return "profile"; // profile.html 반환
     }
 
