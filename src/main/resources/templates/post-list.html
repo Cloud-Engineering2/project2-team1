@@ -52,6 +52,12 @@
       color: #555;
       margin-bottom: 5px;
     }
+    
+    .post-meta p:last-child {
+	  color: inherit;
+	  font-size: 1em;
+	  margin: 0;
+	}
 
     /* 게시물 캐러셀 */
     .carousel-item img {
@@ -179,14 +185,18 @@
             postElement.classList.add("post");
 
             postElement.innerHTML = `
-              <div class="post-header">
-                <img src="${ post.profileImage ? post.profileImage : 'default-profile.jpg' }" alt="프로필 이미지">
-                <span>${ post.username ? post.username : '작성자: ' + post.username }</span>
+              <div class="post-inform">
+                <div class="post-header">
+                  <img class="profile-image" src="${ post.profileImage ? post.profileImage : 'default-profile.jpg' }" alt="프로필 이미지">
+                  <span class="uname">${ post.username ? post.username : '작성자: ' + post.username }</span>
+                </div>
+                <div class="post-meta">
+                  <p>
+                    ${ new Date(post.mealDate).toLocaleString() } | ${ post.mealType } | ${ post.calories } kcal
+                  </p>
+                  <p>${ post.content }</p>
+                </div>
               </div>
-              <p class="post-meta">
-                ${ new Date(post.mealDate).toLocaleString() } | ${ post.mealType } | ${ post.calories } kcal
-              </p>
-              <p>${ post.content }</p>
               ${ (post.imageUrlList && post.imageUrlList.length > 0) ? `
                 <div id="carousel-${ post.pid }" class="carousel slide" data-bs-ride="carousel">
                   <div class="carousel-inner">
@@ -207,11 +217,28 @@
             `;
 
             // 게시물 클릭 시 상세 페이지로 이동 (post.pid 사용)
-            const headerDiv = postElement.querySelector(".post-header");
-			  if (headerDiv) {
-			    headerDiv.addEventListener("click", function () {
+            const informDiv = postElement.querySelector(".post-inform");
+			  if (informDiv) {
+			    informDiv.addEventListener("click", function () {
 			    window.location.href = `/detail/${ post.pid }`;
 			  });
+			}
+			
+			// 사용자 프로필 클릭 시 해당 사용자의 프로필 페이지로 이동
+			const profileImage = postElement.querySelector(".profile-image");
+    		const profileName = postElement.querySelector(".uname");
+			
+			if (profileImage) {
+			  profileImage.addEventListener("click", function () {
+				event.stopPropagation();	// 부모 이벤트 전파 방지
+				window.location.href = `/profile/${ post.uid }`;
+			  })
+			}
+			if (profileName) {
+			  profileName.addEventListener("click", function () {
+				event.stopPropagation();	// 부모 이벤트 전파 방지
+				window.location.href = `/profile/${ post.uid }`;
+			  })
 			}
 
             postContainer.appendChild(postElement);
