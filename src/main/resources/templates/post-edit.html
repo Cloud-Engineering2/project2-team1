@@ -125,7 +125,7 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="btn btn-outline-primary" href="#" id="profileBtn">프로필</a>
+            <a class="btn btn-outline-primary" id="profileBtn">프로필</a>
           </li>
           <li class="nav-item">
             <button class="btn btn-outline-danger" id="logoutBtn">로그아웃</button>
@@ -325,6 +325,16 @@
           }
         } catch (error) {
           console.error("오류 발생:", error);
+        }
+      });
+      // 프로필 버튼 클릭 시 "/profile/{uid}"로 이동      }
+      document.getElementById("profileBtn").addEventListener("click", function () {
+        const userId = getUserIdFromToken();
+        if (userId) {
+          window.location.href = "/profile/" + userId;
+        } else {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/login";
         }
       });
 
