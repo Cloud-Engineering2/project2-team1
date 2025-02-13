@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import project2.entity.Users;
 
 @Getter
 @Builder
@@ -15,4 +16,14 @@ public class UserResponse {
     private String email;
     private String bio;
     private String profileImageUrl;
+    
+    public static UserResponse toDto(Users user) {
+    	return UserResponse.builder()
+		        .uid(user.getUid())
+		        .username(user.getUsername())
+		        .email(user.getEmail())
+		        .bio(user.getBio())
+		        .profileImageUrl(user.getProfileImageUrl())
+		        .build();
+    }
 }

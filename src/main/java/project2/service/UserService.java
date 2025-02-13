@@ -69,9 +69,10 @@ public class UserService {
         return userRepository.save(user);
     }
     
-    public Users getUserById(Long uid) {
-        return userRepository.findById(uid)
+    public UserResponse getUserById(Long uid) {
+        Users user = userRepository.findById(uid)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + uid));
+        return UserResponse.toDto(user);
     }
 
     public UserResponse updateUserProfile(Long uid, UserProfileUpdateRequest request, MultipartFile image) {
@@ -101,13 +102,7 @@ public class UserService {
         user.updateProfile(reqUsername, request.getBio(), imageUrl);
         Users updatedUser = userRepository.save(user);
 
-        return UserResponse.builder()
-                .uid(updatedUser.getUid())
-                .username(updatedUser.getUsername())
-                .email(updatedUser.getEmail())
-                .bio(updatedUser.getBio())
-                .profileImageUrl(updatedUser.getProfileImageUrl())
-                .build();
+        return UserResponse.toDto(updatedUser);
     }
 
     public void deleteUser(Long uid) {
