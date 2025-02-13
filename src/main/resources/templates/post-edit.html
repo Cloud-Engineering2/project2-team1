@@ -187,10 +187,6 @@
       </div>
     </form>
   </div>
-  <!-- 푸터 -->
-  <div class="footer">
-    <button class="btn btn-outline-secondary" id="deleteAccountBtn">회원탈퇴</button>
-  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -361,27 +357,6 @@
           }
         } catch (error) {
           console.error("로그아웃 요청 실패:", error);
-        }
-      });
-
-      // 회원탈퇴 버튼 클릭 이벤트
-      document.getElementById("deleteAccountBtn").addEventListener("click", function () {
-        const uid = getUserIdFromToken();
-        if (confirm("정말로 회원탈퇴 하시겠습니까?")) {
-          fetch(`/api/users/${uid}`, {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-          })
-            .then(response => {
-              if (response.ok) {
-                alert("회원탈퇴가 완료되었습니다.");
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-              } else {
-                alert("회원탈퇴 실패!");
-              }
-            })
-            .catch(error => console.error("회원탈퇴 요청 실패:", error));
         }
       });
     });
