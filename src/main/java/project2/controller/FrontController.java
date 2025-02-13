@@ -30,11 +30,6 @@ public class FrontController {
         return "register"; // register.html 반환
     }
 
-    @GetMapping("/test") // 로그인 테스트
-    public String getTestPage() {
-        return "test"; // test.html 반환
-    }
-
     @GetMapping("/profile/{uid}")
     public String getProfilePage(@PathVariable("uid") Long uid, Model model) {
         return "profile"; // profile.html 반환
