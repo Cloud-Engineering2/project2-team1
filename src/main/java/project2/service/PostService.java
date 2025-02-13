@@ -184,7 +184,7 @@ public class PostService {
 			});
 		}
 		
-		return PostResponse.toDto(post);
+		return PostResponse.toDto(savedPost);
 	}
 
 	// 게시물 삭제

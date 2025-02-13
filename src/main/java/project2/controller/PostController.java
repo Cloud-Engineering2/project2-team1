@@ -63,7 +63,7 @@ public class PostController {
 	public ResponseEntity<PostResponse> updatePost(
 			@PathVariable("pid") Long pid,
 			@RequestPart("post") PostRequest postRequest,
-			@RequestPart(value = "image", required = false) MultipartFile[] images) {
+			@RequestPart(value = "image", required = true) MultipartFile[] images) {
 		PostResponse updatedPost = postService.updatePost(pid, postRequest, images);
 		return new ResponseEntity<>(updatedPost, HttpStatus.OK);
 	}
